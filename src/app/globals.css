@@ -1,26 +1,135 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 142 30% 98%;
+  --foreground: 142 50% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 142 50% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 142 50% 15%;
+  --primary: 142 65% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 142 25% 92%;
+  --secondary-foreground: 142 65% 35%;
+  --muted: 142 20% 95%;
+  --muted-foreground: 142 40% 40%;
+  --accent: 142 50% 85%;
+  --accent-foreground: 142 65% 25%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 142 40% 80%;
+  --input: 142 40% 80%;
+  --ring: 142 65% 45%;
+  --radius: 0.75rem;
+  --chart-1: 142 65% 50%;
+  --chart-2: 142 50% 60%;
+  --chart-3: 142 40% 40%;
+  --chart-4: 142 70% 70%;
+  --chart-5: 142 55% 55%;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --radius: var(--radius);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 142 25% 8%;
+    --foreground: 142 50% 90%;
+    --card: 142 25% 10%;
+    --card-foreground: 142 50% 90%;
+    --popover: 142 25% 10%;
+    --popover-foreground: 142 50% 90%;
+    --primary: 142 65% 55%;
+    --primary-foreground: 142 25% 8%;
+    --secondary: 142 25% 15%;
+    --secondary-foreground: 142 50% 85%;
+    --muted: 142 20% 18%;
+    --muted-foreground: 142 40% 65%;
+    --accent: 142 30% 20%;
+    --accent-foreground: 142 65% 70%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 142 35% 25%;
+    --input: 142 35% 25%;
+    --ring: 142 65% 55%;
+    --chart-1: 142 65% 60%;
+    --chart-2: 142 50% 50%;
+    --chart-3: 142 40% 60%;
+    --chart-4: 142 70% 50%;
+    --chart-5: 142 55% 65%;
   }
 }
 
+* {
+  border-color: hsl(var(--border));
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+@keyframes scanLine {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-scanLine {
+  animation: scanLine 2s infinite linear;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
