@@ -3,81 +3,81 @@
 import { useState, useRef } from "react";
 import React from "react";
 import {
-  PackageCheck,
+  AlertTriangle,
   Camera,
   CheckCircle,
-  Hash,
   Trash2,
   Image as ImageIcon,
 } from "lucide-react";
 import { CameraCapture } from "@/components/camera/CameraCapture";
 import { ImageViewer } from "@/components/common/ImageViewer";
 import { createTimestamp } from "@/utils/dateTime";
-import { DeliveryPhotos, Timestamp, GeoapifySearchResult } from "@/types";
+import { IncidentPhotos, Timestamp, GeoapifySearchResult } from "@/types";
 
-interface DeliveryPhotoUploadProps {
-  deliveryPhotos: DeliveryPhotos;
-  setDeliveryPhotos: (val: DeliveryPhotos) => void;
-  runSheetNumber: string;
+interface IncidentPhotoUploadProps {
+  incidentPhotos: IncidentPhotos;
+  setIncidentPhotos: (val: IncidentPhotos) => void;
   confirmedTime: Timestamp | null;
   currentAddress?: GeoapifySearchResult | null;
 }
 
-export const DeliveryPhotoUpload = ({
-  deliveryPhotos,
-  setDeliveryPhotos,
-  runSheetNumber,
+export const IncidentPhotoUpload = ({
+  incidentPhotos,
+  setIncidentPhotos,
   confirmedTime,
   currentAddress,
-}: DeliveryPhotoUploadProps) => {
+}: IncidentPhotoUploadProps) => {
   const [activeCamera, setActiveCamera] = useState<string | null>(null);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
-  const [showRunSheetOptions, setShowRunSheetOptions] = useState(false);
+  const [showOptions, setShowOptions] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const photoTypes = [
+    { key: "incident1", label: "เหตุการณ์ที่ 1" },
+    { key: "incident2", label: "เหตุการณ์ที่ 2" },
+    { key: "incident3", label: "เหตุการณ์ที่ 3" },
+    { key: "incident4", label: "เหตุการณ์ที่ 4" },
+  ];
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
+    if (file && file.type.startsWith("image/") && showOptions) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
-        setDeliveryPhotos({
-          ...deliveryPhotos,
-          deliveryRunSheet: base64String,
+        setIncidentPhotos({
+          ...incidentPhotos,
+          [showOptions]: base64String,
         });
       };
       reader.readAsDataURL(file);
     }
-    // Reset input so same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    setShowOptions(null);
   };
 
-  const handleRunSheetClick = () => {
-    setShowRunSheetOptions(true);
+  const handlePhotoClick = (typeKey: string) => {
+    setShowOptions(typeKey);
   };
 
-  const handleRunSheetCamera = () => {
-    setShowRunSheetOptions(false);
-    setActiveCamera("deliveryRunSheet");
+  const handleCamera = () => {
+    if (showOptions) {
+      setActiveCamera(showOptions);
+      setShowOptions(null);
+    }
   };
 
-  const handleRunSheetGallery = () => {
-    setShowRunSheetOptions(false);
-    fileInputRef.current?.click();
+  const handleGallery = () => {
+    if (showOptions) {
+      fileInputRef.current?.click();
+    }
   };
-
-  const photoTypes = [
-    { key: "beforeOpen", label: "ก่อนเปิดตู้" },
-    { key: "breakSeal", label: "ระหว่าง Break Seal" },
-    { key: "emptyContainer", label: "ตู้เปล่าหลังลงสินค้า" },
-    { key: "deliveryRunSheet", label: "Run Sheet (จัดส่ง)" },
-  ];
 
   if (confirmedTime) {
     const allPhotos = photoTypes
-      .map((type) => deliveryPhotos[type.key as keyof DeliveryPhotos])
+      .map((type) => incidentPhotos[type.key as keyof IncidentPhotos])
       .filter((photo): photo is string => photo !== null);
 
     return (
@@ -91,29 +91,21 @@ export const DeliveryPhotoUpload = ({
                 : 0
             }
             onClose={() => setViewingImage(null)}
-            alt="Delivery photo"
+            alt="Incident photo"
           />
         )}
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4 animate-fadeIn">
-          <div className="flex justify-between items-center border-b pb-3 mb-1">
-            <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
-              <PackageCheck size={18} className="text-green-600" />{" "}
-              หลักฐานจัดส่ง (4 ภาพ)
-            </h3>
-            <div className="bg-blue-50 px-2 py-1 rounded-md border border-blue-100 flex items-center gap-1">
-              <Hash size={10} className="text-blue-500" />
-              <span className="text-[10px] font-black text-blue-700">
-                RS: {runSheetNumber || "-"}
-              </span>
-            </div>
-          </div>
+          <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
+            <AlertTriangle size={18} className="text-orange-600" /> ภาพเหตุการณ์ระหว่างเดินทาง
+            (4 ภาพ)
+          </h3>
           <div className="grid grid-cols-2 gap-3">
             {photoTypes.map((type) => {
-              const photo = deliveryPhotos[type.key as keyof DeliveryPhotos];
+              const photo = incidentPhotos[type.key as keyof IncidentPhotos];
               return (
                 <div
                   key={type.key}
-                  className={`relative aspect-square rounded-xl border-2 border-green-500 bg-gray-900 overflow-hidden ${
+                  className={`relative aspect-square rounded-xl border-2 border-orange-500 bg-gray-900 overflow-hidden ${
                     photo ? "cursor-pointer" : ""
                   }`}
                   onClick={() => {
@@ -129,7 +121,7 @@ export const DeliveryPhotoUpload = ({
                         alt={type.label}
                         className="w-full h-full object-cover pointer-events-none"
                       />
-                      <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
+                      <div className="absolute top-1 right-1 bg-orange-500 rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
                       <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
@@ -149,8 +141,8 @@ export const DeliveryPhotoUpload = ({
           </div>
           <div className="bg-gray-900 rounded-xl p-3 text-[10px] text-white space-y-1">
             <div className="flex justify-between border-b border-white/20 pb-1.5 mb-1 font-black">
-              <span className="text-green-400 tracking-tight uppercase text-[9px]">
-                จัดส่งสินค้าสำเร็จ (POD)
+              <span className="text-orange-400 tracking-tight uppercase text-[9px]">
+                บันทึกภาพเหตุการณ์ระหว่างเดินทาง
               </span>
             </div>
             {currentAddress?.address && (
@@ -188,28 +180,28 @@ export const DeliveryPhotoUpload = ({
         onChange={handleFileSelect}
         className="hidden"
       />
-      {showRunSheetOptions && (
+      {showOptions && (
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-xs w-full space-y-3">
             <h3 className="text-sm font-black text-gray-800 uppercase text-center mb-4">
-              เลือกวิธีเพิ่มรูป Run Sheet
+              เลือกวิธีเพิ่มรูป
             </h3>
             <button
-              onClick={handleRunSheetCamera}
+              onClick={handleCamera}
               className="w-full flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
             >
               <Camera size={20} />
               ถ่ายรูป
             </button>
             <button
-              onClick={handleRunSheetGallery}
+              onClick={handleGallery}
               className="w-full flex items-center justify-center gap-3 p-4 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
             >
               <ImageIcon size={20} />
               เลือกจากแกลเลอรี่
             </button>
             <button
-              onClick={() => setShowRunSheetOptions(false)}
+              onClick={() => setShowOptions(null)}
               className="w-full p-3 text-gray-600 rounded-xl font-black uppercase border-2 border-gray-200 active:scale-95 transition-all"
             >
               ยกเลิก
@@ -220,8 +212,8 @@ export const DeliveryPhotoUpload = ({
       {activeCamera && (
         <CameraCapture
           onCapture={(imageData) => {
-            setDeliveryPhotos({
-              ...deliveryPhotos,
+            setIncidentPhotos({
+              ...incidentPhotos,
               [activeCamera]: imageData,
             });
             setActiveCamera(null);
@@ -230,13 +222,13 @@ export const DeliveryPhotoUpload = ({
           label={photoTypes.find((t) => t.key === activeCamera)?.label || ""}
           currentAddress={currentAddress}
           timestamp={createTimestamp()}
-          statusLabel={`จัดส่งสินค้าสำเร็จ [RS: ${runSheetNumber}]`}
+          statusLabel="บันทึกภาพเหตุการณ์ระหว่างเดินทาง"
         />
       )}
       {viewingImage !== null &&
         (() => {
           const allPhotos = photoTypes
-            .map((type) => deliveryPhotos[type.key as keyof DeliveryPhotos])
+            .map((type) => incidentPhotos[type.key as keyof IncidentPhotos])
             .filter((photo): photo is string => photo !== null);
 
           return (
@@ -248,42 +240,28 @@ export const DeliveryPhotoUpload = ({
                   : 0
               }
               onClose={() => setViewingImage(null)}
-              alt="Delivery photo"
+              alt="Incident photo"
             />
           );
         })()}
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4 animate-fadeIn">
-        <div className="flex justify-between items-center border-b pb-3 mb-1">
-          <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
-            <PackageCheck size={18} className="text-green-600" /> หลักฐานจัดส่ง
-            (4 ภาพ)
-          </h3>
-          <div className="bg-blue-50 px-2 py-1 rounded-md border border-blue-100 flex items-center gap-1">
-            <Hash size={10} className="text-blue-500" />
-            <span className="text-[10px] font-black text-blue-700">
-              RS: {runSheetNumber || "-"}
-            </span>
-          </div>
-        </div>
+        <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
+          <AlertTriangle size={18} className="text-orange-600" /> ภาพเหตุการณ์ระหว่างเดินทาง
+          (4 ภาพ)
+        </h3>
         <div className="grid grid-cols-2 gap-3">
           {photoTypes.map((type) => {
             const hasPhoto =
-              deliveryPhotos[type.key as keyof DeliveryPhotos] !== null;
-            const photo = deliveryPhotos[type.key as keyof DeliveryPhotos];
+              incidentPhotos[type.key as keyof IncidentPhotos] !== null;
+            const photo = incidentPhotos[type.key as keyof IncidentPhotos];
 
             return (
               <div key={type.key} className="relative">
                 <button
-                  onClick={() => {
-                    if (type.key === "deliveryRunSheet") {
-                      handleRunSheetClick();
-                    } else {
-                      setActiveCamera(type.key);
-                    }
-                  }}
+                  onClick={() => handlePhotoClick(type.key)}
                   className={`relative w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden aspect-square ${
                     hasPhoto
-                      ? "border-green-500 bg-green-50"
+                      ? "border-orange-500 bg-orange-50"
                       : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
                   }`}
                 >
@@ -294,7 +272,7 @@ export const DeliveryPhotoUpload = ({
                         alt={type.label}
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
+                      <div className="absolute top-1 right-1 bg-orange-500 rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
                       <div
@@ -332,11 +310,7 @@ export const DeliveryPhotoUpload = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (type.key === "deliveryRunSheet") {
-                          handleRunSheetClick();
-                        } else {
-                          setActiveCamera(type.key);
-                        }
+                        handlePhotoClick(type.key);
                       }}
                       className="flex-1 text-[8px] text-orange-600 font-black uppercase border border-orange-600 bg-white py-1 rounded-md hover:bg-orange-50 transition-colors"
                     >
@@ -345,8 +319,8 @@ export const DeliveryPhotoUpload = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setDeliveryPhotos({
-                          ...deliveryPhotos,
+                        setIncidentPhotos({
+                          ...incidentPhotos,
                           [type.key]: null,
                         });
                       }}
@@ -364,3 +338,4 @@ export const DeliveryPhotoUpload = ({
     </>
   );
 };
+

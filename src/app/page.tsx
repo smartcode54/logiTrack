@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 "use client";
 
 import { useState } from "react";
@@ -11,6 +12,7 @@ import {
   Fuel,
   RefreshCw,
   LocateFixed,
+  AlertTriangle,
 } from "lucide-react";
 
 // Components
@@ -22,8 +24,11 @@ import { PickupPhotoUpload } from "@/components/workflow/PickupPhotoUpload";
 import { DepartureStatus } from "@/components/workflow/DepartureStatus";
 import { ArrivalStatus } from "@/components/workflow/ArrivalStatus";
 import { DeliveryPhotoUpload } from "@/components/workflow/DeliveryPhotoUpload";
+import { IncidentPhotoUpload } from "@/components/workflow/IncidentPhotoUpload";
+import { IncidentSelection } from "@/components/workflow/IncidentSelection";
 import { JobCard } from "@/components/jobs/JobCard";
 import { DeliveredJobCard } from "@/components/dashboard/DeliveredJobCard";
+import { DeliverySuccessModal } from "@/components/common/DeliverySuccessModal";
 
 // Types
 import {
@@ -32,6 +37,7 @@ import {
   Timestamp,
   PickupPhotos,
   DeliveryPhotos,
+  IncidentPhotos,
 } from "@/types";
 
 // Utils
@@ -60,12 +66,13 @@ export default function Home() {
 
   // States
   const [isScanning, setIsScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
   const [isStartingJob, setIsStartingJob] = useState(false);
   const [startingJobId, setStartingJobId] = useState<string | null>(null);
   const [currentAddress, setCurrentAddress] =
     useState<GeoapifySearchResult | null>(null);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
+  const [locationSyncedTime, setLocationSyncedTime] =
+    useState<Timestamp | null>(null);
 
   const [checkInPhoto, setCheckInPhoto] = useState<string | null>(null);
   const [runSheetNumber, setRunSheetNumber] = useState("");
@@ -81,6 +88,18 @@ export default function Home() {
     emptyContainer: null,
     deliveryRunSheet: null,
   });
+  const [isDelayed, setIsDelayed] = useState(false);
+  const [incidentPhotos, setIncidentPhotos] = useState<IncidentPhotos>({
+    incident1: null,
+    incident2: null,
+    incident3: null,
+    incident4: null,
+  });
+  const [confirmedIncidentTime, setConfirmedIncidentTime] =
+    useState<Timestamp | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [lastDeliveryRecord, setLastDeliveryRecord] =
+    useState<DeliveredJob | null>(null);
 
   const [jobs, setJobs] = useState<Job[]>([
     {
@@ -104,7 +123,7 @@ export default function Home() {
   const [deliveredJobs, setDeliveredJobs] = useState<DeliveredJob[]>([]);
 
   const handleStartScanning = () => {
-    startScanning(setScanProgress, setIsScanning, setRunSheetNumber);
+    startScanning(setIsScanning);
   };
 
   const handleStartJob = async (job: Job) => {
@@ -164,7 +183,9 @@ export default function Home() {
           const addressResult = await searchAddress({ lang: "th" });
           setCurrentAddress(addressResult);
 
+          // Update synced timestamp when address is successfully fetched
           if (addressResult) {
+            setLocationSyncedTime(createTimestamp());
             console.log("✅ ได้ที่อยู่แล้ว:", addressResult.address.formatted);
           } else {
             console.warn("⚠️ ไม่สามารถดึงที่อยู่ได้");
@@ -252,7 +273,9 @@ export default function Home() {
       const result = await searchAddress({ lang: "th" });
       setCurrentAddress(result);
 
+      // Update synced timestamp when address is successfully fetched
       if (result) {
+        setLocationSyncedTime(createTimestamp());
         console.log(`✅ พบที่อยู่: ${result.address.formatted}`);
       } else {
         console.log("⚠️ ไม่พบผลลัพธ์");
@@ -271,18 +294,42 @@ export default function Home() {
     if (step === 0) setConfirmedCheckInTime(timestamp);
     if (step === 1) setConfirmedPickupTime(timestamp);
     if (step === 2) setConfirmedDepartureTime(timestamp);
-    if (step === 3) setConfirmedArrivalTime(timestamp);
-    if (step === 4) setConfirmedDeliveryTime(timestamp);
+
+    // Step 3 is incident selection - no timestamp needed
+    if (isDelayed) {
+      if (step === 4) setConfirmedArrivalTime(timestamp);
+      if (step === 5) setConfirmedIncidentTime(timestamp);
+      if (step === 6) setConfirmedDeliveryTime(timestamp);
+    } else {
+      if (step === 4) setConfirmedArrivalTime(timestamp);
+      if (step === 5) setConfirmedDeliveryTime(timestamp);
+    }
 
     // Re-render สถานที่ปัจจุบันใหม่ทุกครั้งเมื่อกดปุ่มยืนยัน
     await handleTestGeoapifySearch();
 
-    if (step < 4) {
+    // Step 3 is incident selection - check if delayed to determine next step
+    if (step === 3) {
+      if (isDelayed) {
+        // If delayed, go to arrival step (step 4)
+        setStep(4);
+      } else {
+        // If not delayed, skip incident photo step and go to arrival (step 4)
+        setStep(4);
+      }
+      return;
+    }
+
+    const maxStep = isDelayed ? 6 : 5;
+    if (step < maxStep) {
       setStep(step + 1);
     } else {
       if (!currentJob) return;
 
-      const finalDeliveryTime = step === 4 ? timestamp : confirmedDeliveryTime;
+      const finalDeliveryTime =
+        (isDelayed && step === 6) || (!isDelayed && step === 5)
+          ? timestamp
+          : confirmedDeliveryTime;
       if (confirmedPickupTime && finalDeliveryTime && runSheetNumber) {
         const deliveryRecord: DeliveredJob = {
           id: currentJob.id,
@@ -294,6 +341,8 @@ export default function Home() {
           date: finalDeliveryTime.date,
         };
         setDeliveredJobs((prev) => [deliveryRecord, ...prev]);
+        setLastDeliveryRecord(deliveryRecord);
+        setShowSuccessModal(true);
       }
 
       const updatedJobs = jobs.map((j) =>
@@ -316,30 +365,72 @@ export default function Home() {
         emptyContainer: null,
         deliveryRunSheet: null,
       });
+      setIncidentPhotos({
+        incident1: null,
+        incident2: null,
+        incident3: null,
+        incident4: null,
+      });
       setConfirmedCheckInTime(null);
       setConfirmedPickupTime(null);
       setConfirmedDepartureTime(null);
       setConfirmedArrivalTime(null);
       setConfirmedDeliveryTime(null);
-      setActiveTab("jobs");
+      setConfirmedIncidentTime(null);
+      setIsDelayed(false);
+      // Don't change tab immediately, let modal handle it
     }
   };
 
-  const steps = [
-    "บันทึก Check-in",
-    "บันทึกรับสินค้า",
-    "ออกเดินทาง",
-    "ถึงจุดส่งของ",
-    "จัดส่งสำเร็จ (POD)",
-  ];
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    setLastDeliveryRecord(null);
+    setActiveTab("jobs");
+  };
+
+  const handleViewSummary = () => {
+    setShowSuccessModal(false);
+    setLastDeliveryRecord(null);
+    setActiveTab("dashboard");
+  };
+
+  const getSteps = () => {
+    const baseSteps = ["บันทึก Check-in", "บันทึกรับสินค้า", "ออกเดินทาง"];
+    // Step 3: เลือกเหตุการณ์ระหว่างเดินทาง (ทุกครั้ง)
+    if (isDelayed) {
+      return [
+        ...baseSteps,
+        "เลือกเหตุการณ์ระหว่างเดินทาง",
+        "ถึงจุดส่งของ",
+        "บันทึกภาพเหตุการณ์ระหว่างเดินทาง",
+        "จัดส่งสำเร็จ (POD)",
+      ];
+    }
+    return [
+      ...baseSteps,
+      "เลือกเหตุการณ์ระหว่างเดินทาง",
+      "ถึงจุดส่งของ",
+      "จัดส่งสำเร็จ (POD)",
+    ];
+  };
+
+  const steps = getSteps();
 
   const getDisplayLabel = (index: number): string => {
     const stepLabels: Record<number, string> = {
       0: `Check-in ยืนยันเข้ารับงานแล้ว @ ${confirmedCheckInTime?.date} ${confirmedCheckInTime?.time}`,
       1: `บันทึกรับสินค้าสำเร็จ [RS: ${runSheetNumber}] @ ${confirmedPickupTime?.date} ${confirmedPickupTime?.time}`,
       2: `ออกเดินทางเมื่อ @ ${confirmedDepartureTime?.date} ${confirmedDepartureTime?.time}`,
-      3: `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime?.date} ${confirmedArrivalTime?.time}`,
-      4: `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime?.date} ${confirmedDeliveryTime?.time}`,
+      3: "เลือกเหตุการณ์ระหว่างเดินทาง",
+      4: isDelayed
+        ? `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime?.date} ${confirmedArrivalTime?.time}`
+        : `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime?.date} ${confirmedArrivalTime?.time}`,
+      5: isDelayed
+        ? `บันทึกภาพเหตุการณ์ระหว่างเดินทาง @ ${confirmedIncidentTime?.date} ${confirmedIncidentTime?.time}`
+        : `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime?.date} ${confirmedDeliveryTime?.time}`,
+      6: isDelayed
+        ? `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime?.date} ${confirmedDeliveryTime?.time}`
+        : "",
     };
 
     if (index < step && stepLabels[index]) {
@@ -348,19 +439,42 @@ export default function Home() {
     return steps[index];
   };
 
-  const stepIcons = [
-    <Truck size={20} key="truck" />,
-    <FileText size={20} key="file" />,
-    <Navigation size={20} key="nav" />,
-    <MapPin size={20} key="pin" />,
-    <PackageCheck size={20} key="package" />,
-  ];
+  const getStepIcon = (index: number) => {
+    if (isDelayed) {
+      const icons = [
+        <Truck size={20} key="truck" />,
+        <FileText size={20} key="file" />,
+        <Navigation size={20} key="nav" />,
+        <AlertTriangle size={20} key="alert" />,
+        <MapPin size={20} key="pin" />,
+        <AlertTriangle size={20} key="incident" />,
+        <PackageCheck size={20} key="package" />,
+      ];
+      return icons[index];
+    } else {
+      const icons = [
+        <Truck size={20} key="truck" />,
+        <FileText size={20} key="file" />,
+        <Navigation size={20} key="nav" />,
+        <AlertTriangle size={20} key="alert" />,
+        <MapPin size={20} key="pin" />,
+        <PackageCheck size={20} key="package" />,
+      ];
+      return icons[index];
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans max-w-md mx-auto border-x shadow-2xl relative overflow-x-hidden select-none">
+      <DeliverySuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleCloseSuccessModal}
+        onViewSummary={handleViewSummary}
+        deliveryData={lastDeliveryRecord}
+      />
       <Header />
 
-      <main className="min-h-screen pb-40">
+      <main className="min-h-screen pb-40 pt-24">
         {activeTab === "jobs" && (
           <div className="p-4 animate-fadeIn">
             <h2 className="text-2xl font-black text-gray-800 mb-5 tracking-tight">
@@ -383,8 +497,8 @@ export default function Home() {
           <div className="p-4 space-y-6 animate-fadeIn">
             {isScanning && (
               <ScannerOverlay
-                scanProgress={scanProgress}
                 setIsScanning={setIsScanning}
+                setRunSheetNumber={setRunSheetNumber}
               />
             )}
 
@@ -426,9 +540,17 @@ export default function Home() {
                   </div>
                   {currentAddress.address.latitude &&
                     currentAddress.address.longitude && (
-                      <div className="text-[10px] font-mono text-gray-500 border-t pt-2 mt-2">
-                        📍 {currentAddress.address.latitude.toFixed(6)},{" "}
-                        {currentAddress.address.longitude.toFixed(6)}
+                      <div className="text-[10px] font-mono text-gray-500 border-t pt-2 mt-2 space-y-1">
+                        <div>
+                          📍 {currentAddress.address.latitude.toFixed(6)},{" "}
+                          {currentAddress.address.longitude.toFixed(6)}
+                        </div>
+                        {locationSyncedTime && (
+                          <div className="text-gray-400">
+                            synced: {locationSyncedTime.date}{" "}
+                            {locationSyncedTime.time}
+                          </div>
+                        )}
                       </div>
                     )}
                 </div>
@@ -458,19 +580,27 @@ export default function Home() {
                         <div
                           className={`z-10 w-10 h-10 rounded-xl flex items-center justify-center shadow-md ${
                             i < step
-                              ? "bg-green-500 text-white"
+                              ? isDelayed && i === 5
+                                ? "bg-orange-600 text-white"
+                                : "bg-green-500 text-white"
                               : i === step
                               ? "bg-blue-600 text-white"
                               : "bg-white border-2 border-gray-100 text-gray-300"
                           }`}
                         >
-                          {i < step ? <CheckCircle size={20} /> : stepIcons[i]}
+                          {i < step ? (
+                            <CheckCircle size={20} />
+                          ) : (
+                            getStepIcon(i)
+                          )}
                         </div>
                         <div className="flex-1 pt-1">
                           <p
                             className={`font-black text-sm uppercase tracking-tight ${
                               i < step
-                                ? "text-green-600"
+                                ? isDelayed && i === 5
+                                  ? "text-orange-700"
+                                  : "text-green-600"
                                 : i === step
                                 ? "text-blue-700"
                                 : "text-gray-600"
@@ -511,21 +641,41 @@ export default function Home() {
                           currentAddress={currentAddress}
                         />
                       )}
-                      {i === 3 && (step === 3 || confirmedArrivalTime) && (
-                        <ArrivalStatus
-                          confirmedTime={confirmedArrivalTime}
-                          currentAddress={currentAddress}
+                      {i === 3 && (step === 3 || confirmedDepartureTime) && (
+                        <IncidentSelection
+                          isDelayed={isDelayed}
+                          setIsDelayed={setIsDelayed}
+                          confirmedDepartureTime={!!confirmedDepartureTime}
                         />
                       )}
-                      {i === 4 && (step === 4 || confirmedDeliveryTime) && (
-                        <DeliveryPhotoUpload
-                          deliveryPhotos={deliveryPhotos}
-                          setDeliveryPhotos={setDeliveryPhotos}
-                          runSheetNumber={runSheetNumber}
-                          confirmedTime={confirmedDeliveryTime}
-                          currentAddress={currentAddress}
-                        />
-                      )}
+                      {((isDelayed && i === 4) || (!isDelayed && i === 4)) &&
+                        (step === 4 || confirmedArrivalTime) && (
+                          <ArrivalStatus
+                            confirmedTime={confirmedArrivalTime}
+                            currentAddress={currentAddress}
+                          />
+                        )}
+                      {isDelayed &&
+                        i === 5 &&
+                        (step === 5 || confirmedIncidentTime) && (
+                          <IncidentPhotoUpload
+                            incidentPhotos={incidentPhotos}
+                            setIncidentPhotos={setIncidentPhotos}
+                            confirmedTime={confirmedIncidentTime}
+                            currentAddress={currentAddress}
+                          />
+                        )}
+                      {((isDelayed && i === 6) || (!isDelayed && i === 5)) &&
+                        (step === (isDelayed ? 6 : 5) ||
+                          confirmedDeliveryTime) && (
+                          <DeliveryPhotoUpload
+                            deliveryPhotos={deliveryPhotos}
+                            setDeliveryPhotos={setDeliveryPhotos}
+                            runSheetNumber={runSheetNumber}
+                            confirmedTime={confirmedDeliveryTime}
+                            currentAddress={currentAddress}
+                          />
+                        )}
                     </div>
                   );
                 })}
@@ -538,12 +688,20 @@ export default function Home() {
                 disabled={
                   (step === 0 && !checkInPhoto) ||
                   (step === 1 && (!pickupPhotos.runSheet || !runSheetNumber)) ||
-                  (step === 4 && Object.values(deliveryPhotos).some((v) => !v))
+                  (isDelayed &&
+                    step === 5 &&
+                    Object.values(incidentPhotos).some((v) => !v)) ||
+                  ((isDelayed ? step === 6 : step === 5) &&
+                    Object.values(deliveryPhotos).some((v) => !v))
                 }
                 className={`w-full text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 border-b-4 ${
                   (step === 0 && !checkInPhoto) ||
                   (step === 1 && (!pickupPhotos.runSheet || !runSheetNumber)) ||
-                  (step === 4 && Object.values(deliveryPhotos).some((v) => !v))
+                  (isDelayed &&
+                    step === 5 &&
+                    Object.values(incidentPhotos).some((v) => !v)) ||
+                  ((isDelayed ? step === 6 : step === 5) &&
+                    Object.values(deliveryPhotos).some((v) => !v))
                     ? "bg-gray-400 border-gray-500 opacity-60"
                     : "bg-green-600 border-green-800"
                 }`}
@@ -556,8 +714,14 @@ export default function Home() {
                   : step === 2
                   ? "ยืนยันการออกเดินทาง"
                   : step === 3
+                  ? "ถัดไป"
+                  : (isDelayed && step === 4) || (!isDelayed && step === 4)
                   ? "ยืนยันถึงจุดส่งของ"
-                  : step === 4
+                  : isDelayed && step === 5
+                  ? confirmedIncidentTime
+                    ? "บันทึกภาพเหตุการณ์เสร็จแล้ว"
+                    : "ยืนยันบันทึกภาพเหตุการณ์"
+                  : (isDelayed && step === 6) || (!isDelayed && step === 5)
                   ? confirmedDeliveryTime
                     ? "ปิดงานเสร็จสมบูรณ์"
                     : "ยืนยันปิดงานและส่งข้อมูล"
@@ -581,7 +745,7 @@ export default function Home() {
         {activeTab === "dashboard" && (
           <div className="p-4 space-y-6 animate-fadeIn pb-40">
             <h2 className="text-2xl font-black text-gray-800 tracking-tight">
-              สรุปผลงาน
+              สรุปงานที่จัดส่ง
             </h2>
 
             {deliveredJobs.length === 0 ? (

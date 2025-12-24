@@ -69,3 +69,10 @@ export interface DeliveryPhotos {
   deliveryRunSheet: string | null;
 }
 
+export interface IncidentPhotos {
+  incident1: string | null;
+  incident2: string | null;
+  incident3: string | null;
+  incident4: string | null;
+}
+

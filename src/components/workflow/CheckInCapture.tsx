@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Camera } from "lucide-react";
+import { Camera, Trash2 } from "lucide-react";
 import { CameraCapture } from "@/components/camera/CameraCapture";
 import { ConfirmedOverlay } from "./ConfirmedOverlay";
 import { ImageViewer } from "@/components/common/ImageViewer";
@@ -108,9 +108,19 @@ export const CheckInCapture = ({
             </button>
             <button
               onClick={() => setShowCamera(true)}
-              className="flex-1 text-xs text-blue-600 font-black uppercase border border-blue-600 py-2 rounded-lg hover:bg-blue-50 transition-colors"
+              className="flex-1 text-xs text-orange-600 font-black uppercase border border-orange-600 py-2 rounded-lg hover:bg-orange-50 transition-colors"
             >
               ถ่ายใหม่
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCheckInPhoto(null);
+              }}
+              className="px-4 text-xs text-red-600 font-black uppercase border border-red-600 py-2 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-1"
+            >
+              <Trash2 size={14} />
+              ลบ
             </button>
           </div>
         )}

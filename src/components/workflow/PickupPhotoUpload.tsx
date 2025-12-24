@@ -1,7 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { FileText, Camera, CheckCircle, Hash, Scan } from "lucide-react";
+import { useState, useRef } from "react";
+import React from "react";
+import {
+  FileText,
+  Camera,
+  CheckCircle,
+  Hash,
+  Scan,
+  Trash2,
+  Image as ImageIcon,
+} from "lucide-react";
 import { CameraCapture } from "@/components/camera/CameraCapture";
 import { ImageViewer } from "@/components/common/ImageViewer";
 import { createTimestamp } from "@/utils/dateTime";
@@ -28,6 +37,41 @@ export const PickupPhotoUpload = ({
 }: PickupPhotoUploadProps) => {
   const [activeCamera, setActiveCamera] = useState<string | null>(null);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
+  const [showRunSheetOptions, setShowRunSheetOptions] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setPickupPhotos({
+          ...pickupPhotos,
+          runSheet: base64String,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRunSheetClick = () => {
+    setShowRunSheetOptions(true);
+  };
+
+  const handleRunSheetCamera = () => {
+    setShowRunSheetOptions(false);
+    setActiveCamera("runSheet");
+  };
+
+  const handleRunSheetGallery = () => {
+    setShowRunSheetOptions(false);
+    fileInputRef.current?.click();
+  };
 
   const photoTypes = [
     { key: "beforeClose", label: "ก่อนปิดตู้" },
@@ -138,6 +182,42 @@ export const PickupPhotoUpload = ({
 
   return (
     <>
+      <input
+        type="file"
+        ref={fileInputRef}
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+      {showRunSheetOptions && (
+        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-xs w-full space-y-3">
+            <h3 className="text-sm font-black text-gray-800 uppercase text-center mb-4">
+              เลือกวิธีเพิ่มรูป Run Sheet
+            </h3>
+            <button
+              onClick={handleRunSheetCamera}
+              className="w-full flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
+            >
+              <Camera size={20} />
+              ถ่ายรูป
+            </button>
+            <button
+              onClick={handleRunSheetGallery}
+              className="w-full flex items-center justify-center gap-3 p-4 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
+            >
+              <ImageIcon size={20} />
+              เลือกจากแกลเลอรี่
+            </button>
+            <button
+              onClick={() => setShowRunSheetOptions(false)}
+              className="w-full p-3 text-gray-600 rounded-xl font-black uppercase border-2 border-gray-200 active:scale-95 transition-all"
+            >
+              ยกเลิก
+            </button>
+          </div>
+        </div>
+      )}
       {activeCamera && (
         <CameraCapture
           onCapture={(imageData) => {
@@ -151,7 +231,7 @@ export const PickupPhotoUpload = ({
           label={photoTypes.find((t) => t.key === activeCamera)?.label || ""}
           currentAddress={currentAddress}
           timestamp={createTimestamp()}
-          statusLabel={`บันทึกรับสินค้า [RS: ${runSheetNumber}]`}
+          statusLabel={"บันทึกรับสินค้าสำเร็จ"}
         />
       )}
       {viewingImage !== null &&
@@ -182,50 +262,94 @@ export const PickupPhotoUpload = ({
           {photoTypes.map((type) => {
             const hasPhoto =
               pickupPhotos[type.key as keyof PickupPhotos] !== null;
+            const photo = pickupPhotos[type.key as keyof PickupPhotos];
 
             return (
-              <button
-                key={type.key}
-                onClick={() => setActiveCamera(type.key)}
-                className={`relative rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden aspect-square ${
-                  hasPhoto
-                    ? "border-green-500 bg-green-50"
-                    : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
-                }`}
-              >
-                {pickupPhotos[type.key as keyof PickupPhotos] ? (
-                  <>
-                    <img
-                      src={pickupPhotos[type.key as keyof PickupPhotos]!}
-                      alt={type.label}
-                      className="w-full h-full object-cover pointer-events-none"
-                    />
-                    <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
-                      <CheckCircle size={16} className="text-white" />
-                    </div>
-                    <div
-                      className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center cursor-pointer"
+              <div key={type.key} className="relative">
+                <button
+                  onClick={() => {
+                    if (type.key === "runSheet") {
+                      handleRunSheetClick();
+                    } else {
+                      setActiveCamera(type.key);
+                    }
+                  }}
+                  className={`relative w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden aspect-square ${
+                    hasPhoto
+                      ? "border-green-500 bg-green-50"
+                      : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
+                  }`}
+                >
+                  {photo ? (
+                    <>
+                      <img
+                        src={photo}
+                        alt={type.label}
+                        className="w-full h-full object-cover pointer-events-none"
+                      />
+                      <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
+                        <CheckCircle size={16} className="text-white" />
+                      </div>
+                      <div
+                        className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewingImage(photo);
+                        }}
+                      >
+                        <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">
+                          คลิกดู
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Camera size={24} className="mb-1 opacity-50" />
+                      <span className="text-[9px] font-black uppercase text-center leading-tight px-1">
+                        {type.label}
+                      </span>
+                    </>
+                  )}
+                </button>
+                {photo && (
+                  <div className="absolute -bottom-1 left-0 right-0 flex gap-1 px-1">
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setViewingImage(
-                          pickupPhotos[type.key as keyof PickupPhotos]!
-                        );
+                        setViewingImage(photo);
                       }}
+                      className="flex-1 text-[8px] text-blue-600 font-black uppercase border border-blue-600 bg-white py-1 rounded-md hover:bg-blue-50 transition-colors"
                     >
-                      <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">
-                        คลิกดู
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Camera size={24} className="mb-1 opacity-50" />
-                    <span className="text-[9px] font-black uppercase text-center leading-tight px-1">
-                      {type.label}
-                    </span>
-                  </>
+                      ดู
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (type.key === "runSheet") {
+                          handleRunSheetClick();
+                        } else {
+                          setActiveCamera(type.key);
+                        }
+                      }}
+                      className="flex-1 text-[8px] text-orange-600 font-black uppercase border border-orange-600 bg-white py-1 rounded-md hover:bg-orange-50 transition-colors"
+                    >
+                      ใหม่
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPickupPhotos({
+                          ...pickupPhotos,
+                          [type.key]: null,
+                        });
+                      }}
+                      className="px-2 text-[8px] text-red-600 font-black uppercase border border-red-600 bg-white py-1 rounded-md hover:bg-red-50 transition-colors flex items-center justify-center"
+                    >
+                      <Trash2 size={10} />
+                    </button>
+                  </div>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
