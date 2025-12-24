@@ -1154,3 +1154,5 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
     </div>
   );
 };
+
+export default AddExpensePage;

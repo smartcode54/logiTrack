@@ -121,3 +121,5 @@ export const ExpensesPage = ({ onAddExpense }: ExpensesPageProps) => {
   );
 };
 
+export default ExpensesPage;
+

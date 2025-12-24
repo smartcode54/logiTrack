@@ -130,6 +130,7 @@ export default function Home() {
     currentAddress: locationState.currentAddress,
     currentJob,
     onCompleteJob: handleCompleteJob,
+    incidentAddress: workflowState.incidentAddress,
     onResetWorkflow: handleResetWorkflow,
     setIncidentAddress: workflowState.setIncidentAddress,
     setConfirmedIncidentTime: workflowState.setConfirmedIncidentTime,

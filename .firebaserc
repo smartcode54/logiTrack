@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "logitrack-tms-dev"
+  },
+  "targets": {
+    "logitrack-tms-dev": {
+      "hosting": {
+        "logitrack-driver-app-dev": [
+          "logitrack-driver-app-dev"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

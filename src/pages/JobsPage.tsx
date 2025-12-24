@@ -30,7 +30,7 @@ export const JobsPage = ({
           </p>
         </div>
       ) : (
-        jobs
+        (jobs || [])
           .filter((j) => j.status !== "delivered")
           .map((job) => (
             <JobCard
@@ -45,4 +45,6 @@ export const JobsPage = ({
     </div>
   );
 };
+
+export default JobsPage;
 

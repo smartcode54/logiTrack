@@ -1,14 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { createTimestamp } from "@/utils/dateTime";
 import { INCIDENT_OPTIONS } from "@/constants/incidents";
-import {
-  Job,
-  DeliveredJob,
-  Timestamp,
-  GeoapifySearchResult,
-} from "@/types";
+import { Job, DeliveredJob, Timestamp, GeoapifySearchResult } from "@/types";
 import {
   Truck,
   FileText,
@@ -35,6 +30,7 @@ interface UseWorkflowLogicProps {
   currentJob: Job | null;
   onCompleteJob: (record: DeliveredJob) => void;
   onResetWorkflow: () => void;
+  incidentAddress: GeoapifySearchResult | null;
   setIncidentAddress: (address: GeoapifySearchResult | null) => void;
   setConfirmedIncidentTime: (time: Timestamp | null) => void;
   setConfirmedArrivalTime: (time: Timestamp | null) => void;
@@ -59,6 +55,7 @@ export const useWorkflowLogic = ({
   currentJob,
   onCompleteJob,
   onResetWorkflow,
+  incidentAddress,
   setIncidentAddress,
   setConfirmedIncidentTime,
   setConfirmedArrivalTime,
@@ -123,28 +120,38 @@ export const useWorkflowLogic = ({
   );
 
   const getStepIcon = useCallback(
-    (index: number) => {
-      if (isDelayed) {
-        const icons = [
-          <Truck size={20} key="truck" />,
-          <FileText size={20} key="file" />,
-          <Navigation size={20} key="nav" />,
-          <AlertTriangle size={20} key="alert" />,
-          <AlertTriangle size={20} key="incident" />,
-          <MapPin size={20} key="pin" />,
-          <PackageCheck size={20} key="package" />,
-        ];
-        return icons[index];
-      } else {
-        const icons = [
-          <Truck size={20} key="truck" />,
-          <FileText size={20} key="file" />,
-          <Navigation size={20} key="nav" />,
-          <AlertTriangle size={20} key="alert" />,
-          <MapPin size={20} key="pin" />,
-          <PackageCheck size={20} key="package" />,
-        ];
-        return icons[index];
+    (index: number): React.ReactElement | null => {
+      // Return null for SSR to avoid issues
+      if (typeof window === "undefined") {
+        return null;
+      }
+
+      try {
+        if (isDelayed) {
+          const icons: React.ReactElement[] = [
+            React.createElement(Truck, { size: 20, key: "truck" }),
+            React.createElement(FileText, { size: 20, key: "file" }),
+            React.createElement(Navigation, { size: 20, key: "nav" }),
+            React.createElement(AlertTriangle, { size: 20, key: "alert" }),
+            React.createElement(AlertTriangle, { size: 20, key: "incident" }),
+            React.createElement(MapPin, { size: 20, key: "pin" }),
+            React.createElement(PackageCheck, { size: 20, key: "package" }),
+          ];
+          return icons[index] || null;
+        } else {
+          const icons: React.ReactElement[] = [
+            React.createElement(Truck, { size: 20, key: "truck" }),
+            React.createElement(FileText, { size: 20, key: "file" }),
+            React.createElement(Navigation, { size: 20, key: "nav" }),
+            React.createElement(AlertTriangle, { size: 20, key: "alert" }),
+            React.createElement(MapPin, { size: 20, key: "pin" }),
+            React.createElement(PackageCheck, { size: 20, key: "package" }),
+          ];
+          return icons[index] || null;
+        }
+      } catch (error) {
+        // Fallback to null if there's any error
+        return null;
       }
     },
     [isDelayed]
@@ -260,4 +267,3 @@ export const useWorkflowLogic = ({
     nextStep,
   };
 };
-
