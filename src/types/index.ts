@@ -45,6 +45,8 @@ export interface Job {
   scheduledTime: string;
 }
 
+export type JobStatus = "success" | "delay" | "cancel" | "standby";
+
 export interface DeliveredJob {
   id: string;
   runSheet: string;
@@ -53,6 +55,10 @@ export interface DeliveredJob {
   route: string;
   type: string;
   date: string;
+  status: JobStatus;
+  incidentType?: string;
+  incidentTime?: string;
+  incidentAddress?: string;
 }
 
 export interface PickupPhotos {

@@ -1,22 +1,83 @@
 "use client";
 
-import { CheckCircle, X, PackageCheck, Hash, Calendar, MapPin } from "lucide-react";
-import { DeliveredJob } from "@/types";
+import {
+  CheckCircle,
+  X,
+  PackageCheck,
+  Hash,
+  Calendar,
+  MapPin,
+  AlertTriangle,
+  Clock,
+} from "lucide-react";
+import { DeliveredJob, JobStatus } from "@/types";
 
 interface DeliverySuccessModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onViewSummary: () => void;
+  onViewSummary?: () => void;
   deliveryData: DeliveredJob | null;
+  viewOnly?: boolean;
 }
+
+const getStatusConfig = (status: JobStatus) => {
+  switch (status) {
+    case "success":
+      return {
+        label: "สำเร็จ",
+        icon: CheckCircle,
+        bgColor: "bg-green-100",
+        textColor: "text-green-700",
+        iconColor: "text-green-600",
+      };
+    case "delay":
+      return {
+        label: "ล่าช้า",
+        icon: AlertTriangle,
+        bgColor: "bg-orange-100",
+        textColor: "text-orange-700",
+        iconColor: "text-orange-600",
+      };
+    case "cancel":
+      return {
+        label: "ยกเลิก",
+        icon: X,
+        bgColor: "bg-red-100",
+        textColor: "text-red-700",
+        iconColor: "text-red-600",
+      };
+    case "standby":
+      return {
+        label: "รอ",
+        icon: Clock,
+        bgColor: "bg-yellow-100",
+        textColor: "text-yellow-700",
+        iconColor: "text-yellow-600",
+      };
+    default:
+      return {
+        label: "ไม่ทราบ",
+        icon: CheckCircle,
+        bgColor: "bg-gray-100",
+        textColor: "text-gray-700",
+        iconColor: "text-gray-600",
+      };
+  }
+};
 
 export const DeliverySuccessModal = ({
   isOpen,
   onClose,
   onViewSummary,
   deliveryData,
+  viewOnly = false,
 }: DeliverySuccessModalProps) => {
   if (!isOpen) return null;
+
+  const statusConfig = deliveryData
+    ? getStatusConfig(deliveryData.status)
+    : null;
+  const StatusIcon = statusConfig?.icon || CheckCircle;
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/60 flex items-center justify-center p-4 animate-fadeIn">
@@ -71,7 +132,9 @@ export const DeliverySuccessModal = ({
                   <MapPin size={16} className="text-gray-400 mt-0.5" />
                   <div className="flex-1">
                     <span className="text-gray-500 text-xs">เส้นทาง:</span>
-                    <p className="font-bold text-gray-800">{deliveryData.route}</p>
+                    <p className="font-bold text-gray-800">
+                      {deliveryData.route}
+                    </p>
                   </div>
                 </div>
 
@@ -79,7 +142,9 @@ export const DeliverySuccessModal = ({
                   <Hash size={16} className="text-gray-400" />
                   <div className="flex-1">
                     <span className="text-gray-500 text-xs">Run Sheet:</span>
-                    <p className="font-black text-blue-600">{deliveryData.runSheet}</p>
+                    <p className="font-black text-blue-600">
+                      {deliveryData.runSheet}
+                    </p>
                   </div>
                 </div>
 
@@ -87,19 +152,39 @@ export const DeliverySuccessModal = ({
                   <Calendar size={16} className="text-gray-400" />
                   <div className="flex-1">
                     <span className="text-gray-500 text-xs">วันที่:</span>
-                    <p className="font-bold text-gray-800">{deliveryData.date}</p>
+                    <p className="font-bold text-gray-800">
+                      {deliveryData.date}
+                    </p>
                   </div>
                 </div>
 
+                {statusConfig && (
+                  <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                    <StatusIcon size={16} className={statusConfig.iconColor} />
+                    <div className="flex-1">
+                      <span className="text-gray-500 text-xs">สถานะ:</span>
+                      <p
+                        className={`font-bold text-sm ${statusConfig.textColor}`}
+                      >
+                        {statusConfig.label}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-3 pt-2 border-t border-gray-200">
                   <div>
-                    <span className="text-gray-500 text-xs block">เวลารับ:</span>
+                    <span className="text-gray-500 text-xs block">
+                      เวลารับ:
+                    </span>
                     <p className="font-bold text-gray-800 text-sm">
                       {deliveryData.pickupTime}
                     </p>
                   </div>
                   <div>
-                    <span className="text-gray-500 text-xs block">เวลาส่ง:</span>
+                    <span className="text-gray-500 text-xs block">
+                      เวลาส่ง:
+                    </span>
                     <p className="font-bold text-green-600 text-sm">
                       {deliveryData.deliveryTime}
                     </p>
@@ -107,20 +192,78 @@ export const DeliverySuccessModal = ({
                 </div>
               </div>
             </div>
+
+            {/* แสดงข้อมูลเหตุการณ์ถ้ามี */}
+            {deliveryData.incidentType && (
+              <div className="bg-orange-50 border-l-4 border-orange-500 rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle size={18} className="text-orange-600" />
+                  <span className="text-sm font-black text-orange-800 uppercase">
+                    เหตุการณ์ระหว่างเดินทาง
+                  </span>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle
+                      size={16}
+                      className="text-orange-500 mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <span className="text-orange-600 text-xs">
+                        ประเภทเหตุการณ์:
+                      </span>
+                      <p className="font-bold text-orange-800">
+                        {deliveryData.incidentType}
+                      </p>
+                    </div>
+                  </div>
+                  {deliveryData.incidentTime && (
+                    <div className="flex items-center gap-2">
+                      <Clock size={16} className="text-orange-500" />
+                      <div className="flex-1">
+                        <span className="text-orange-600 text-xs">
+                          วัน เวลา:
+                        </span>
+                        <p className="font-bold text-orange-800">
+                          {deliveryData.incidentTime}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {deliveryData.incidentAddress && (
+                    <div className="flex items-start gap-2">
+                      <MapPin size={16} className="text-orange-500 mt-0.5" />
+                      <div className="flex-1">
+                        <span className="text-orange-600 text-xs">
+                          สถานที่:
+                        </span>
+                        <p className="font-bold text-orange-800">
+                          {deliveryData.incidentAddress}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* Footer */}
         <div className="p-6 pt-0 space-y-3">
-          <button
-            onClick={onViewSummary}
-            className="w-full bg-green-600 text-white font-black py-4 rounded-xl uppercase tracking-wider hover:bg-green-700 active:scale-95 transition-all shadow-lg"
-          >
-            ดูสรุปผลงาน
-          </button>
+          {!viewOnly && onViewSummary && (
+            <button
+              onClick={onViewSummary}
+              className="w-full bg-green-600 text-white font-black py-4 rounded-xl uppercase tracking-wider hover:bg-green-700 active:scale-95 transition-all shadow-lg"
+            >
+              ดูสรุปผลงาน
+            </button>
+          )}
           <button
             onClick={onClose}
-            className="w-full bg-gray-100 text-gray-700 font-black py-3 rounded-xl uppercase tracking-wider hover:bg-gray-200 active:scale-95 transition-all"
+            className={`w-full bg-gray-100 text-gray-700 font-black py-3 rounded-xl uppercase tracking-wider hover:bg-gray-200 active:scale-95 transition-all ${
+              viewOnly ? "py-4" : ""
+            }`}
           >
             ปิด
           </button>
@@ -129,4 +272,3 @@ export const DeliverySuccessModal = ({
     </div>
   );
 };
-

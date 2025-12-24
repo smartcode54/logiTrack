@@ -18,7 +18,7 @@ export const Header = memo(() => (
     <div className="flex items-center gap-2 text-xs font-medium text-blue-100 border-t border-blue-600 pt-2 mt-2">
       <Hash size={14} />
       <span>Fleet: TRK-2025-001</span>
-      <span className="mx-2">ง</span>
+      <span className="mx-2">•</span>
       <span>Vehicle: 30-1234</span>
     </div>
   </div>

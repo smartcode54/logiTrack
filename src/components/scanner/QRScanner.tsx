@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from "@zxing/library";
-import { QrCode, X } from "lucide-react";
+import { X } from "lucide-react";
 
 interface QRScannerProps {
   onScanSuccess: (decodedText: string) => void;
@@ -46,8 +46,8 @@ export const QRScanner = ({ onScanSuccess, onClose }: QRScannerProps) => {
           onScanSuccess(result.getText());
           stopScanning();
         }
-      } catch (err: any) {
-        if (err.name === "NotFoundException") {
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "NotFoundException") {
           // ยังไม่เจอ QR code (ปกติ)
           return;
         }

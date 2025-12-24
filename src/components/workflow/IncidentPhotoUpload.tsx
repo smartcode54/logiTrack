@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import React from "react";
 import {
   AlertTriangle,
   Camera,
   CheckCircle,
   Trash2,
-  Image as ImageIcon,
 } from "lucide-react";
 import { CameraCapture } from "@/components/camera/CameraCapture";
 import { ImageViewer } from "@/components/common/ImageViewer";
@@ -29,8 +28,6 @@ export const IncidentPhotoUpload = ({
 }: IncidentPhotoUploadProps) => {
   const [activeCamera, setActiveCamera] = useState<string | null>(null);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
-  const [showOptions, setShowOptions] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const photoTypes = [
     { key: "incident1", label: "เหตุการณ์ที่ 1" },
@@ -39,40 +36,8 @@ export const IncidentPhotoUpload = ({
     { key: "incident4", label: "เหตุการณ์ที่ 4" },
   ];
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && file.type.startsWith("image/") && showOptions) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setIncidentPhotos({
-          ...incidentPhotos,
-          [showOptions]: base64String,
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-    setShowOptions(null);
-  };
-
   const handlePhotoClick = (typeKey: string) => {
-    setShowOptions(typeKey);
-  };
-
-  const handleCamera = () => {
-    if (showOptions) {
-      setActiveCamera(showOptions);
-      setShowOptions(null);
-    }
-  };
-
-  const handleGallery = () => {
-    if (showOptions) {
-      fileInputRef.current?.click();
-    }
+    setActiveCamera(typeKey);
   };
 
   if (confirmedTime) {
@@ -173,42 +138,6 @@ export const IncidentPhotoUpload = ({
 
   return (
     <>
-      <input
-        type="file"
-        ref={fileInputRef}
-        accept="image/*"
-        onChange={handleFileSelect}
-        className="hidden"
-      />
-      {showOptions && (
-        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-xs w-full space-y-3">
-            <h3 className="text-sm font-black text-gray-800 uppercase text-center mb-4">
-              เลือกวิธีเพิ่มรูป
-            </h3>
-            <button
-              onClick={handleCamera}
-              className="w-full flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
-            >
-              <Camera size={20} />
-              ถ่ายรูป
-            </button>
-            <button
-              onClick={handleGallery}
-              className="w-full flex items-center justify-center gap-3 p-4 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
-            >
-              <ImageIcon size={20} />
-              เลือกจากแกลเลอรี่
-            </button>
-            <button
-              onClick={() => setShowOptions(null)}
-              className="w-full p-3 text-gray-600 rounded-xl font-black uppercase border-2 border-gray-200 active:scale-95 transition-all"
-            >
-              ยกเลิก
-            </button>
-          </div>
-        </div>
-      )}
       {activeCamera && (
         <CameraCapture
           onCapture={(imageData) => {

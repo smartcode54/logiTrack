@@ -7,9 +7,17 @@ interface JobCardProps {
   job: Job;
   onStartJob: (job: Job) => void;
   isStarting?: boolean;
+  disabled?: boolean;
 }
 
-export const JobCard = ({ job, onStartJob, isStarting = false }: JobCardProps) => {
+export const JobCard = ({
+  job,
+  onStartJob,
+  isStarting = false,
+  disabled = false,
+}: JobCardProps) => {
+  const isButtonDisabled = disabled || isStarting;
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-4 p-5">
       <div className="flex justify-between items-start mb-4">
@@ -32,11 +40,11 @@ export const JobCard = ({ job, onStartJob, isStarting = false }: JobCardProps) =
       </div>
       <button
         onClick={() => onStartJob(job)}
-        disabled={isStarting}
+        disabled={isButtonDisabled}
         className={`w-full text-white font-black py-4 rounded-xl shadow-lg border-b-4 transition-all uppercase tracking-wide flex items-center justify-center gap-2 ${
-          isStarting
-            ? "bg-blue-400 border-blue-500 cursor-not-allowed opacity-70"
-            : "bg-blue-600 border-blue-800 active:translate-y-1"
+          isButtonDisabled
+            ? "bg-gray-400 border-gray-500 cursor-not-allowed opacity-70"
+            : "bg-blue-600 border-blue-800 active:translate-y-1 hover:bg-blue-700"
         }`}
       >
         {isStarting ? (
@@ -44,6 +52,8 @@ export const JobCard = ({ job, onStartJob, isStarting = false }: JobCardProps) =
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             กำลังโหลด...
           </>
+        ) : disabled ? (
+          "ไม่สามารถเริ่มงานได้"
         ) : (
           "รับแผนและเริ่มงาน"
         )}
