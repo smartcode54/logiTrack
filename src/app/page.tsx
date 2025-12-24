@@ -12,6 +12,7 @@ import { JobsPage } from "@/pages/JobsPage";
 import { ActiveJobPage } from "@/pages/ActiveJobPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { ExpensesPage } from "@/pages/ExpensesPage";
+import { AddExpensePage } from "@/pages/AddExpensePage";
 
 // Hooks
 import { useJobState } from "@/hooks/useJobState";
@@ -209,7 +210,13 @@ export default function Home() {
           />
         )}
 
-        {activeTab === "expenses" && <ExpensesPage />}
+        {activeTab === "expenses" && (
+          <ExpensesPage onAddExpense={() => setActiveTabState("add-expense")} />
+        )}
+
+        {activeTab === "add-expense" && (
+          <AddExpensePage onBack={() => setActiveTabState("expenses")} />
+        )}
 
         {activeTab === "dashboard" && (
           <DashboardPage

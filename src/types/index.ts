@@ -82,3 +82,27 @@ export interface IncidentPhotos {
   incident4: string | null;
 }
 
+export type ExpenseCategory = "fuel" | "maintenance" | "other";
+export type PaymentType = "card" | "cash";
+
+export interface FuelExpenseData {
+  mileage: number | null; // เลขไมล์ก่อนเติม
+  liters: number | null; // จำนวนลิตรที่เติม
+  paymentType: PaymentType | null; // ประเภทการเติม: บัตรน้ำมัน/เงินสด
+  beforeFillImage: string | null; // รูปภาพถังน้ำมันก่อนเติม (เพื่อดูระดับน้ำมัน)
+  receiptImage: string | null; // รูปภาพบิล/ใบเสร็จน้ำมัน
+}
+
+export interface Expense {
+  id: string;
+  category: ExpenseCategory;
+  amount: number;
+  description: string;
+  date: string;
+  time: string;
+  timestamp: number; // For sorting
+  otherType?: string; // For "other" category (tire, car washed, etc.)
+  fuelData?: FuelExpenseData; // ข้อมูลเพิ่มเติมสำหรับค่าใช้จ่ายน้ำมัน
+  receiptImages?: string[]; // รูปภาพใบเสร็จสำหรับ maintenance (4 ภาพ) และ other (1 ภาพ)
+}
+
