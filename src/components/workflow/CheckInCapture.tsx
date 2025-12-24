@@ -72,7 +72,7 @@ export const CheckInCapture = ({
           }}
           className={`relative aspect-video rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden ${
             checkInPhoto
-              ? "border-green-500 bg-green-50 cursor-pointer hover:border-green-600"
+              ? "border-karabao bg-karabao/10 cursor-pointer hover:border-karabao-dark"
               : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
           }`}
         >

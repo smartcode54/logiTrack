@@ -133,6 +133,9 @@ export default function Home() {
     incidentAddress: workflowState.incidentAddress,
     onResetWorkflow: handleResetWorkflow,
     setIncidentAddress: workflowState.setIncidentAddress,
+    setConfirmedCheckInTime: workflowState.setConfirmedCheckInTime,
+    setConfirmedPickupTime: workflowState.setConfirmedPickupTime,
+    setConfirmedDepartureTime: workflowState.setConfirmedDepartureTime,
     setConfirmedIncidentTime: workflowState.setConfirmedIncidentTime,
     setConfirmedArrivalTime: workflowState.setConfirmedArrivalTime,
     setConfirmedDeliveryTime: workflowState.setConfirmedDeliveryTime,
@@ -171,6 +174,7 @@ export default function Home() {
 
         {activeTab === "active-job" && currentJob && (
           <ActiveJobPage
+            jobId={currentJob.id}
             isScanning={isScanning}
             setIsScanning={setIsScanning}
             setRunSheetNumber={workflowState.setRunSheetNumber}

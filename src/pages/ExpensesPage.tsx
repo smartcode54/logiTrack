@@ -113,7 +113,7 @@ export const ExpensesPage = ({ onAddExpense }: ExpensesPageProps) => {
       {/* Floating Add Button */}
       <button
         onClick={onAddExpense}
-        className="fixed bottom-24 right-4 z-50 w-16 h-16 bg-green-600 text-white rounded-full shadow-xl flex items-center justify-center hover:bg-green-700 active:scale-95 transition-all border-b-4 border-green-800"
+        className="fixed bottom-24 right-4 z-50 w-16 h-16 bg-karabao text-white rounded-full shadow-xl flex items-center justify-center hover:bg-karabao-dark active:scale-95 transition-all border-b-4 border-karabao-dark"
       >
         <Receipt size={24} />
       </button>

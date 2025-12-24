@@ -97,7 +97,7 @@ export const DeliveryPhotoUpload = ({
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4 animate-fadeIn">
           <div className="flex justify-between items-center border-b pb-3 mb-1">
             <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
-              <PackageCheck size={18} className="text-green-600" />{" "}
+              <PackageCheck size={18} className="text-karabao" />{" "}
               หลักฐานจัดส่ง (4 ภาพ)
             </h3>
             <div className="bg-blue-50 px-2 py-1 rounded-md border border-blue-100 flex items-center gap-1">
@@ -113,7 +113,7 @@ export const DeliveryPhotoUpload = ({
               return (
                 <div
                   key={type.key}
-                  className={`relative aspect-square rounded-xl border-2 border-green-500 bg-gray-900 overflow-hidden ${
+                  className={`relative aspect-square rounded-xl border-2 border-karabao bg-gray-900 overflow-hidden ${
                     photo ? "cursor-pointer" : ""
                   }`}
                   onClick={() => {
@@ -130,7 +130,7 @@ export const DeliveryPhotoUpload = ({
                         alt={type.label}
                         className="w-full h-full object-cover pointer-events-none"
                       />
-                      <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
+                      <div className="absolute top-1 right-1 bg-karabao rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
                       <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
@@ -150,7 +150,7 @@ export const DeliveryPhotoUpload = ({
           </div>
           <div className="bg-gray-900 rounded-xl p-3 text-[10px] text-white space-y-1">
             <div className="flex justify-between border-b border-white/20 pb-1.5 mb-1 font-black">
-              <span className="text-green-400 tracking-tight uppercase text-[9px]">
+              <span className="text-karabao-light tracking-tight uppercase text-[9px]">
                 จัดส่งสินค้าสำเร็จ (POD)
               </span>
             </div>
@@ -204,7 +204,7 @@ export const DeliveryPhotoUpload = ({
             </button>
             <button
               onClick={handleRunSheetGallery}
-              className="w-full flex items-center justify-center gap-3 p-4 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
+              className="w-full flex items-center justify-center gap-3 p-4 bg-karabao text-white rounded-xl font-black uppercase active:scale-95 transition-all"
             >
               <ImageIcon size={20} />
               เลือกจากแกลเลอรี่
@@ -284,7 +284,7 @@ export const DeliveryPhotoUpload = ({
                   }}
                   className={`relative w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden aspect-square ${
                     hasPhoto
-                      ? "border-green-500 bg-green-50"
+                      ? "border-karabao bg-karabao/10"
                       : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
                   }`}
                 >
@@ -296,7 +296,7 @@ export const DeliveryPhotoUpload = ({
                         alt={type.label}
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
+                      <div className="absolute top-1 right-1 bg-karabao rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
                       <div

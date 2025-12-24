@@ -48,7 +48,7 @@ export const ConfirmedOverlay = ({
       <div
         className={`relative ${
           type === "image" ? "aspect-video" : "p-6"
-        } rounded-xl border-2 border-green-500 bg-gray-900 overflow-hidden animate-fadeIn ${
+        } rounded-xl border-2 border-karabao bg-gray-900 overflow-hidden animate-fadeIn ${
           imageData ? "cursor-pointer" : ""
         }`}
         onClick={() => {
@@ -83,7 +83,7 @@ export const ConfirmedOverlay = ({
         )}
         <div className="absolute bottom-0 left-0 right-0 bg-black/85 p-3 text-[10px] text-white space-y-1">
           <div className="flex justify-between border-b border-white/20 pb-1.5 mb-1 font-black">
-            <span className="text-green-400 tracking-tight uppercase text-[9px]">
+            <span className="text-karabao-light tracking-tight uppercase text-[9px]">
               {statusLabel}
             </span>
           </div>
@@ -105,7 +105,7 @@ export const ConfirmedOverlay = ({
             </p>
           )}
         </div>
-        <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1.5 shadow-xl border-2 border-white">
+        <div className="absolute top-2 right-2 bg-karabao text-white rounded-full p-1.5 shadow-xl border-2 border-white">
           <CheckCircle size={18} />
         </div>
       </div>

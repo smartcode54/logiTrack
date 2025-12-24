@@ -92,7 +92,7 @@ export const ExpenseSummary = ({
           <span className="text-base font-black text-gray-800 uppercase">
             รวมทั้งหมด
           </span>
-          <span className="text-2xl font-black text-green-600">
+          <span className="text-2xl font-black text-karabao">
             ฿{totalAll.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
           </span>
         </div>

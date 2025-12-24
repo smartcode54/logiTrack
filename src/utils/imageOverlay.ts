@@ -156,7 +156,7 @@ export function addOverlayToCanvas(
     const checkmarkY = baseFontSize * 0.8;
 
     // วาดวงกลมพื้นหลัง
-    ctx.fillStyle = "#22c55e"; // green-500
+    ctx.fillStyle = "#006633"; // karabao green
     ctx.beginPath();
     ctx.arc(
       checkmarkX + checkmarkSize / 2,

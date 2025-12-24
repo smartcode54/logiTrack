@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import React from "react";
 import {
   FileText,
@@ -115,7 +115,7 @@ export const PickupPhotoUpload = ({
               return (
                 <div
                   key={type.key}
-                  className={`relative aspect-square rounded-xl border-2 border-green-500 bg-gray-900 overflow-hidden ${
+                  className={`relative aspect-square rounded-xl border-2 border-karabao bg-gray-900 overflow-hidden ${
                     photo ? "cursor-pointer" : ""
                   }`}
                   onClick={() => {
@@ -131,7 +131,7 @@ export const PickupPhotoUpload = ({
                         alt={type.label}
                         className="w-full h-full object-cover pointer-events-none"
                       />
-                      <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
+                      <div className="absolute top-1 right-1 bg-karabao rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
                       <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
@@ -151,7 +151,7 @@ export const PickupPhotoUpload = ({
           </div>
           <div className="bg-gray-900 rounded-xl p-3 text-[10px] text-white space-y-1">
             <div className="flex justify-between border-b border-white/20 pb-1.5 mb-1 font-black">
-              <span className="text-green-400 tracking-tight uppercase text-[9px]">
+              <span className="text-karabao-light tracking-tight uppercase text-[9px]">
                 {`บันทึกรับสินค้าสำเร็จ: ${capturedPhotoTypes.join(", ")}`}
               </span>
             </div>
@@ -205,7 +205,7 @@ export const PickupPhotoUpload = ({
             </button>
             <button
               onClick={handleRunSheetGallery}
-              className="w-full flex items-center justify-center gap-3 p-4 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
+              className="w-full flex items-center justify-center gap-3 p-4 bg-karabao text-white rounded-xl font-black uppercase active:scale-95 transition-all"
             >
               <ImageIcon size={20} />
               เลือกจากแกลเลอรี่
@@ -277,7 +277,7 @@ export const PickupPhotoUpload = ({
                   }}
                   className={`relative w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden aspect-square ${
                     hasPhoto
-                      ? "border-green-500 bg-green-50"
+                      ? "border-karabao bg-karabao/10"
                       : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
                   }`}
                 >
@@ -288,7 +288,7 @@ export const PickupPhotoUpload = ({
                         alt={type.label}
                         className="w-full h-full object-cover pointer-events-none"
                       />
-                      <div className="absolute top-1 right-1 bg-green-500 rounded-full p-1">
+                      <div className="absolute top-1 right-1 bg-karabao rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
                       <div
@@ -375,6 +375,7 @@ export const PickupPhotoUpload = ({
             <button
               onClick={startScanning}
               className="absolute right-2 top-2 bottom-2 aspect-square bg-blue-600 text-white rounded-lg flex items-center justify-center active:scale-90 transition-transform shadow-lg shadow-blue-100"
+              title="สแกน QR Code"
             >
               <Scan size={20} />
             </button>

@@ -360,24 +360,24 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                     }}
                     className={`p-4 rounded-xl border-2 transition-all relative ${
                       isSelected
-                        ? "border-green-600 bg-green-100 shadow-sm"
+                        ? "border-karabao bg-karabao/10 shadow-sm"
                         : "border-gray-200 bg-white"
                     }`}
                   >
                     {isSelected && (
-                      <div className="absolute top-2 right-2 w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                      <div className="absolute top-2 right-2 w-6 h-6 bg-karabao rounded-full flex items-center justify-center">
                         <Check size={14} className="text-white" />
                       </div>
                     )}
                     <Icon
                       size={24}
                       className={`mb-2 mx-auto ${
-                        isSelected ? "text-green-700" : "text-gray-400"
+                        isSelected ? "text-karabao" : "text-gray-400"
                       }`}
                     />
                     <p
                       className={`text-xs font-black uppercase ${
-                        isSelected ? "text-green-800" : "text-gray-500"
+                        isSelected ? "text-karabao-dark" : "text-gray-500"
                       }`}
                     >
                       {getCategoryLabel(cat)}
@@ -414,12 +414,12 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                     }}
                     className={`p-3 rounded-lg border-2 transition-all text-sm font-black relative ${
                       isSelected
-                        ? "border-green-600 bg-green-100 text-green-800 shadow-sm"
+                        ? "border-karabao bg-karabao/10 text-karabao-dark shadow-sm"
                         : "border-gray-200 bg-white text-gray-600"
                     }`}
                   >
                     {isSelected && (
-                      <div className="absolute top-1 right-1 w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
+                      <div className="absolute top-1 right-1 w-5 h-5 bg-karabao rounded-full flex items-center justify-center">
                         <Check size={12} className="text-white" />
                       </div>
                     )}
@@ -435,7 +435,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                 onChange={(e) => setOtherType(e.target.value)}
                 placeholder="ระบุประเภท"
                 required
-                className="mt-3 w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none text-sm text-gray-900"
+                className="mt-3 w-full p-3 border-2 border-gray-200 rounded-lg focus:border-karabao focus:outline-none text-sm text-gray-900"
               />
             )}
           </div>
@@ -474,7 +474,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                     setCameraType("beforeFill");
                     setShowCamera(true);
                   }}
-                  className="w-full p-6 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center gap-2 hover:border-green-500 hover:bg-green-50 transition-colors"
+                  className="w-full p-6 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center gap-2 hover:border-karabao hover:bg-karabao/10 transition-colors"
                 >
                   <Camera size={32} className="text-gray-400" />
                   <span className="text-sm font-black text-gray-600">
@@ -509,7 +509,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                 step="1"
                 min="0"
                 required
-                className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-lg font-bold text-gray-900"
+                className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-karabao focus:outline-none text-lg font-bold text-gray-900"
               />
             </div>
 
@@ -722,7 +722,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                     <button
                       type="button"
                       onClick={() => handleMaintenanceReceiptClick(index)}
-                      className="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center gap-1 hover:border-green-500 hover:bg-green-50 transition-colors"
+                      className="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center gap-1 hover:border-karabao hover:bg-karabao/10 transition-colors"
                     >
                       <FileText size={20} className="text-gray-400" />
                       <span className="text-xs font-black text-gray-600">
@@ -782,7 +782,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
             disabled={!isFormValid()}
             className={`w-full font-black py-5 rounded-xl shadow-xl transition-all border-b-4 flex items-center justify-center gap-2 ${
               isFormValid()
-                ? "bg-green-600 text-white active:scale-95 border-green-800"
+                ? "bg-karabao text-white active:scale-95 border-karabao-dark"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed border-gray-400"
             }`}
           >
@@ -820,7 +820,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   handleReceiptGallery();
                 }
               }}
-              className="w-full flex items-center justify-center gap-3 p-4 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
+              className="w-full flex items-center justify-center gap-3 p-4 bg-karabao text-white rounded-xl font-black uppercase active:scale-95 transition-all"
             >
               <ImageIcon size={20} />
               เลือกจากแกลเลอรี่
@@ -902,7 +902,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
         <div className="fixed inset-0 z-[200] bg-black/60 flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden animate-scaleIn flex flex-col">
             {/* Header */}
-            <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 text-white relative">
+            <div className="bg-gradient-to-r from-karabao-light to-karabao p-6 text-white relative">
               <button
                 onClick={() => setShowPreviewModal(false)}
                 className="absolute top-4 right-4 p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors"
@@ -917,7 +917,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   <h2 className="text-2xl font-black uppercase tracking-tight">
                     ตรวจสอบข้อมูล
                   </h2>
-                  <p className="text-green-100 text-sm mt-1">
+                  <p className="text-white/80 text-sm mt-1">
                     กรุณาตรวจสอบข้อมูลก่อนบันทึก
                   </p>
                 </div>
@@ -932,8 +932,8 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   {(() => {
                     const Icon = getCategoryIcon(category);
                     return (
-                      <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                        <Icon size={24} className="text-green-600" />
+                      <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                        <Icon size={24} className="text-white" />
                       </div>
                     );
                   })()}
@@ -958,7 +958,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                 <p className="text-xs text-gray-500 uppercase font-black mb-2">
                   จำนวนเงิน
                 </p>
-                <p className="text-2xl font-black text-green-600">
+                <p className="text-2xl font-black text-karabao">
                   ฿
                   {parseFloat(amount || "0").toLocaleString("th-TH", {
                     minimumFractionDigits: 2,
@@ -1008,14 +1008,14 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                       <div className="flex items-center gap-2">
                         {paymentType === "card" ? (
                           <>
-                            <CreditCard size={20} className="text-green-600" />
+                            <CreditCard size={20} className="text-karabao" />
                             <p className="text-lg font-black text-gray-800">
                               บัตรน้ำมัน
                             </p>
                           </>
                         ) : (
                           <>
-                            <Banknote size={20} className="text-green-600" />
+                            <Banknote size={20} className="text-karabao" />
                             <p className="text-lg font-black text-gray-800">
                               เงินสด
                             </p>
@@ -1136,7 +1136,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
             <div className="p-6 border-t border-gray-200 space-y-3">
               <button
                 onClick={handleConfirmSave}
-                className="w-full bg-green-600 text-white font-black py-4 rounded-xl shadow-lg active:scale-95 transition-all border-b-4 border-green-800 flex items-center justify-center gap-2"
+                className="w-full bg-karabao text-white font-black py-4 rounded-xl shadow-lg active:scale-95 transition-all border-b-4 border-karabao-dark flex items-center justify-center gap-2"
               >
                 <CheckCircle size={24} />
                 ยืนยันบันทึก

@@ -121,19 +121,19 @@ export const ExpenseForm = ({
                       }}
                       className={`p-4 rounded-xl border-2 transition-all ${
                         isSelected
-                          ? "border-green-500 bg-green-50"
+                          ? "border-karabao bg-karabao/10"
                           : "border-gray-200 bg-white"
                       }`}
                     >
                       <Icon
                         size={24}
                         className={`mb-2 mx-auto ${
-                          isSelected ? "text-green-600" : "text-gray-400"
+                          isSelected ? "text-karabao" : "text-gray-400"
                         }`}
                       />
                       <p
                         className={`text-xs font-black uppercase ${
-                          isSelected ? "text-green-700" : "text-gray-500"
+                          isSelected ? "text-karabao" : "text-gray-500"
                         }`}
                       >
                         {getCategoryLabel(cat)}
@@ -159,7 +159,7 @@ export const ExpenseForm = ({
                     onClick={() => setOtherType(type)}
                     className={`p-3 rounded-lg border-2 transition-all text-sm font-black ${
                       otherType === type
-                        ? "border-green-500 bg-green-50 text-green-700"
+                        ? "border-karabao bg-karabao/10 text-karabao"
                         : "border-gray-200 bg-white text-gray-600"
                     }`}
                   >
@@ -173,7 +173,7 @@ export const ExpenseForm = ({
                   value={otherType}
                   onChange={(e) => setOtherType(e.target.value)}
                   placeholder="ระบุประเภท"
-                  className="mt-3 w-full p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none text-sm"
+                  className="mt-3 w-full p-3 border-2 border-gray-200 rounded-lg focus:border-karabao focus:outline-none text-sm"
                 />
               )}
             </div>
@@ -192,7 +192,7 @@ export const ExpenseForm = ({
               step="0.01"
               min="0"
               required
-              className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none text-lg font-bold"
+              className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-karabao focus:outline-none text-lg font-bold"
             />
           </div>
 
@@ -207,14 +207,14 @@ export const ExpenseForm = ({
               placeholder="ระบุรายละเอียดค่าใช้จ่าย..."
               rows={3}
               required
-              className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none resize-none text-sm"
+              className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-karabao focus:outline-none resize-none text-sm"
             />
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-green-600 text-white font-black py-4 rounded-xl shadow-xl active:scale-95 transition-all border-b-4 border-green-800 flex items-center justify-center gap-2"
+            className="w-full bg-karabao text-white font-black py-4 rounded-xl shadow-xl active:scale-95 transition-all border-b-4 border-karabao-dark flex items-center justify-center gap-2"
           >
             <Plus size={20} />
             บันทึกค่าใช้จ่าย

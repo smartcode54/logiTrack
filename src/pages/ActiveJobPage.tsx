@@ -31,6 +31,7 @@ import {
 } from "@/types";
 
 interface ActiveJobPageProps {
+  jobId?: string;
   isScanning: boolean;
   setIsScanning: (value: boolean) => void;
   setRunSheetNumber: (value: string) => void;
@@ -71,6 +72,7 @@ interface ActiveJobPageProps {
 export const ActiveJobPage = (props: ActiveJobPageProps) => {
   // Destructure with defaults to prevent "is not a function" errors
   const {
+    jobId,
     isScanning,
     setIsScanning,
     setRunSheetNumber,
@@ -132,9 +134,14 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
       )}
 
       {/* Location Section */}
-      <div className="bg-white border-l-4 border-green-500 p-4 rounded-r-xl shadow-sm space-y-3">
+      <div className="bg-white border-l-4 border-karabao p-4 rounded-r-xl shadow-sm space-y-3">
+        {jobId && (
+          <h1 className="text-2xl font-black text-karabao uppercase tracking-wider mb-2 text-right">
+            #{jobId}
+          </h1>
+        )}
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2 text-sm font-black text-green-600 uppercase">
+          <div className="flex items-center gap-2 text-sm font-black text-karabao uppercase">
             <LocateFixed size={16} />
             สถานที่ปัจจุบัน
           </div>
@@ -144,7 +151,7 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
             className={`p-2 rounded-lg transition-all ${
               isLoadingAddress
                 ? "text-gray-400"
-                : "text-green-600 hover:bg-green-50"
+                : "text-karabao hover:bg-karabao/10"
             }`}
           >
             <RefreshCw
@@ -180,7 +187,7 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
                   <div
                     className={`z-10 w-10 h-10 rounded-xl flex items-center justify-center shadow-md ${
                       i < step
-                        ? "bg-green-500 text-white"
+                        ? "bg-karabao text-white"
                         : i === step
                         ? "bg-blue-600 text-white"
                         : "bg-white border-2 border-gray-100 text-gray-300"
@@ -197,7 +204,7 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
                     <p
                       className={`font-black text-sm uppercase ${
                         i < step
-                          ? "text-green-600"
+                          ? "text-karabao"
                           : i === step
                           ? "text-blue-700"
                           : "text-gray-400"
@@ -214,7 +221,7 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
                 {i < steps.length - 1 && (
                   <div
                     className={`absolute left-5 top-10 w-0.5 h-6 ${
-                      i < step ? "bg-green-500" : "bg-gray-200"
+                      i < step ? "bg-karabao" : "bg-gray-200"
                     }`}
                   />
                 )}
@@ -267,7 +274,44 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
                         currentAddress={currentAddress}
                       />
                     )}
-                  {/* ...ส่วนที่เหลือคงเดิมแต่เพิ่ม Null Check เล็กน้อย... */}
+                  {isDelayed &&
+                    i === 5 &&
+                    (step === 5 || confirmedArrivalTime) && (
+                      <ArrivalStatus
+                        confirmedTime={confirmedArrivalTime}
+                        currentAddress={currentAddress}
+                      />
+                    )}
+                  {isDelayed &&
+                    i === 6 &&
+                    (step === 6 || confirmedDeliveryTime) && (
+                      <DeliveryPhotoUpload
+                        deliveryPhotos={deliveryPhotos}
+                        setDeliveryPhotos={setDeliveryPhotos}
+                        runSheetNumber={runSheetNumber}
+                        confirmedTime={confirmedDeliveryTime}
+                        currentAddress={currentAddress}
+                      />
+                    )}
+                  {!isDelayed &&
+                    i === 4 &&
+                    (step === 4 || confirmedArrivalTime) && (
+                      <ArrivalStatus
+                        confirmedTime={confirmedArrivalTime}
+                        currentAddress={currentAddress}
+                      />
+                    )}
+                  {!isDelayed &&
+                    i === 5 &&
+                    (step === 5 || confirmedDeliveryTime) && (
+                      <DeliveryPhotoUpload
+                        deliveryPhotos={deliveryPhotos}
+                        setDeliveryPhotos={setDeliveryPhotos}
+                        runSheetNumber={runSheetNumber}
+                        confirmedTime={confirmedDeliveryTime}
+                        currentAddress={currentAddress}
+                      />
+                    )}
                 </div>
               </div>
             );
@@ -280,12 +324,57 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
             onClick={onNextStep}
             disabled={
               (step === 0 && !checkInPhoto) ||
-              (step === 1 && (!pickupPhotos?.runSheet || !runSheetNumber))
+              (step === 1 && (!pickupPhotos?.runSheet || !runSheetNumber)) ||
+              (step === 3 &&
+                isDelayed &&
+                (!incidentType ||
+                  (incidentType === "other" && !incidentOtherDescription))) ||
+              (isDelayed &&
+                step === 4 &&
+                (!incidentPhotos?.incident1 ||
+                  !incidentPhotos?.incident2 ||
+                  !incidentPhotos?.incident3 ||
+                  !incidentPhotos?.incident4)) ||
+              (isDelayed &&
+                step === 6 &&
+                (!deliveryPhotos?.beforeOpen ||
+                  !deliveryPhotos?.breakSeal ||
+                  !deliveryPhotos?.emptyContainer ||
+                  !deliveryPhotos?.deliveryRunSheet)) ||
+              (!isDelayed &&
+                step === 5 &&
+                (!deliveryPhotos?.beforeOpen ||
+                  !deliveryPhotos?.breakSeal ||
+                  !deliveryPhotos?.emptyContainer ||
+                  !deliveryPhotos?.deliveryRunSheet))
             }
             className={`w-full text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 ${
-              (step === 0 && !checkInPhoto) || (step === 1 && !runSheetNumber)
+              (step === 0 && !checkInPhoto) ||
+              (step === 1 && !runSheetNumber) ||
+              (step === 3 &&
+                isDelayed &&
+                (!incidentType ||
+                  (incidentType === "other" && !incidentOtherDescription))) ||
+              (isDelayed &&
+                step === 4 &&
+                (!incidentPhotos?.incident1 ||
+                  !incidentPhotos?.incident2 ||
+                  !incidentPhotos?.incident3 ||
+                  !incidentPhotos?.incident4)) ||
+              (isDelayed &&
+                step === 6 &&
+                (!deliveryPhotos?.beforeOpen ||
+                  !deliveryPhotos?.breakSeal ||
+                  !deliveryPhotos?.emptyContainer ||
+                  !deliveryPhotos?.deliveryRunSheet)) ||
+              (!isDelayed &&
+                step === 5 &&
+                (!deliveryPhotos?.beforeOpen ||
+                  !deliveryPhotos?.breakSeal ||
+                  !deliveryPhotos?.emptyContainer ||
+                  !deliveryPhotos?.deliveryRunSheet))
                 ? "bg-gray-400"
-                : "bg-green-600 active:scale-95"
+                : "bg-karabao active:scale-95"
             }`}
           >
             <CheckCircle size={24} />

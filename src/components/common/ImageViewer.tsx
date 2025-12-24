@@ -14,7 +14,7 @@ export const ImageViewer = ({
   imageSrc, 
   onClose, 
   alt = "Image",
-  initialIndex = 0 
+  initialIndex = 0
 }: ImageViewerProps) => {
   const images = Array.isArray(imageSrc) ? imageSrc : [imageSrc];
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -155,7 +155,7 @@ export const ImageViewer = ({
       }}
     >
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-center p-4 bg-black/50">
+      <div className="fixed top-0 left-0 right-0 z-30 flex justify-between items-center p-4 bg-black/50">
         <h3 className="text-white font-black uppercase">
           ดูภาพ {images.length > 1 && `(${currentIndex + 1}/${images.length})`}
         </h3>
@@ -173,7 +173,7 @@ export const ImageViewer = ({
           {currentIndex > 0 && (
             <button
               onClick={goToPrevious}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+              className="fixed left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
             >
               <ChevronLeft size={32} className="text-white" />
             </button>
@@ -181,7 +181,7 @@ export const ImageViewer = ({
           {currentIndex < images.length - 1 && (
             <button
               onClick={goToNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
+              className="fixed right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
             >
               <ChevronRight size={32} className="text-white" />
             </button>
@@ -223,7 +223,7 @@ export const ImageViewer = ({
       </div>
 
       {/* Controls */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 flex justify-center items-center gap-4 p-4 bg-black/50">
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex justify-center items-center gap-4 p-4 bg-black/50">
         <button
           onClick={handleZoomOut}
           disabled={scale <= 0.5}

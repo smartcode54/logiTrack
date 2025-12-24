@@ -200,7 +200,7 @@ export const ExpenseCard = ({ expense, onDelete }: ExpenseCardProps) => {
           <span className="text-xs font-black text-gray-600 uppercase">
             จำนวนเงิน
           </span>
-          <span className="text-lg font-black text-green-600">
+          <span className="text-lg font-black text-karabao">
             ฿{expense.amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
           </span>
         </div>

@@ -32,6 +32,9 @@ interface UseWorkflowLogicProps {
   onResetWorkflow: () => void;
   incidentAddress: GeoapifySearchResult | null;
   setIncidentAddress: (address: GeoapifySearchResult | null) => void;
+  setConfirmedCheckInTime: (time: Timestamp | null) => void;
+  setConfirmedPickupTime: (time: Timestamp | null) => void;
+  setConfirmedDepartureTime: (time: Timestamp | null) => void;
   setConfirmedIncidentTime: (time: Timestamp | null) => void;
   setConfirmedArrivalTime: (time: Timestamp | null) => void;
   setConfirmedDeliveryTime: (time: Timestamp | null) => void;
@@ -57,6 +60,9 @@ export const useWorkflowLogic = ({
   onResetWorkflow,
   incidentAddress,
   setIncidentAddress,
+  setConfirmedCheckInTime,
+  setConfirmedPickupTime,
+  setConfirmedDepartureTime,
   setConfirmedIncidentTime,
   setConfirmedArrivalTime,
   setConfirmedDeliveryTime,
@@ -85,25 +91,41 @@ export const useWorkflowLogic = ({
     (index: number): string => {
       const steps = getSteps();
       const stepLabels: Record<number, string> = {
-        0: `Check-in ยืนยันเข้ารับงานแล้ว @ ${confirmedCheckInTime?.date} ${confirmedCheckInTime?.time}`,
-        1: `บันทึกรับสินค้าสำเร็จ [RS: ${runSheetNumber}] @ ${confirmedPickupTime?.date} ${confirmedPickupTime?.time}`,
-        2: `ออกเดินทางเมื่อ @ ${confirmedDepartureTime?.date} ${confirmedDepartureTime?.time}`,
+        0: confirmedCheckInTime
+          ? `Check-in ยืนยันเข้ารับงานแล้ว @ ${confirmedCheckInTime.date} ${confirmedCheckInTime.time}`
+          : steps[0],
+        1: confirmedPickupTime
+          ? `บันทึกรับสินค้าสำเร็จ [RS: ${runSheetNumber}] @ ${confirmedPickupTime.date} ${confirmedPickupTime.time}`
+          : steps[1],
+        2: confirmedDepartureTime
+          ? `ออกเดินทางเมื่อ @ ${confirmedDepartureTime.date} ${confirmedDepartureTime.time}`
+          : steps[2],
         3: "เลือกเหตุการณ์ระหว่างเดินทาง",
         4: isDelayed
-          ? `บันทึกภาพเหตุการณ์ระหว่างเดินทาง @ ${confirmedIncidentTime?.date} ${confirmedIncidentTime?.time}`
-          : `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime?.date} ${confirmedArrivalTime?.time}`,
+          ? confirmedIncidentTime
+            ? `บันทึกภาพเหตุการณ์ระหว่างเดินทาง @ ${confirmedIncidentTime.date} ${confirmedIncidentTime.time}`
+            : steps[4]
+          : confirmedArrivalTime
+          ? `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime.date} ${confirmedArrivalTime.time}`
+          : steps[4],
         5: isDelayed
-          ? `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime?.date} ${confirmedArrivalTime?.time}`
-          : `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime?.date} ${confirmedDeliveryTime?.time}`,
+          ? confirmedArrivalTime
+            ? `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime.date} ${confirmedArrivalTime.time}`
+            : steps[5]
+          : confirmedDeliveryTime
+          ? `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime.date} ${confirmedDeliveryTime.time}`
+          : steps[5],
         6: isDelayed
-          ? `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime?.date} ${confirmedDeliveryTime?.time}`
+          ? confirmedDeliveryTime
+            ? `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime.date} ${confirmedDeliveryTime.time}`
+            : steps[6]
           : "",
       };
 
       if (index < step && stepLabels[index]) {
         return stepLabels[index];
       }
-      return steps[index];
+      return steps[index] || stepLabels[index] || "";
     },
     [
       step,
@@ -162,13 +184,13 @@ export const useWorkflowLogic = ({
 
     // Set timestamps based on step
     if (step === 0) {
-      // Handled by CheckInCapture component
+      setConfirmedCheckInTime(timestamp);
     }
     if (step === 1) {
-      // Handled by PickupPhotoUpload component
+      setConfirmedPickupTime(timestamp);
     }
     if (step === 2) {
-      // Handled by DepartureStatus component
+      setConfirmedDepartureTime(timestamp);
     }
 
     // Step 3 is incident selection - no timestamp needed

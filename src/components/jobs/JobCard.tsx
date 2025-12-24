@@ -25,7 +25,7 @@ export const JobCard = ({
           className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
             job.type === "LH"
               ? "bg-orange-100 text-orange-700"
-              : "bg-green-100 text-green-700"
+              : "bg-karabao/10 text-karabao"
           }`}
         >
           {job.type}

@@ -17,10 +17,10 @@ export const DepartureStatus = ({
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4 animate-fadeIn">
         <div className="bg-gray-900 rounded-xl p-4 text-white space-y-2">
           <div className="flex items-center justify-between border-b border-white/20 pb-2">
-            <h3 className="text-green-400 font-black text-sm uppercase">
+            <h3 className="text-karabao-light font-black text-sm uppercase">
               ออกเดินทาง
             </h3>
-            <div className="bg-green-500 text-white rounded-full p-1.5">
+            <div className="bg-karabao text-white rounded-full p-1.5">
               <Navigation size={18} />
             </div>
           </div>

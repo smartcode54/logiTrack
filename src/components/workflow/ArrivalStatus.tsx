@@ -17,10 +17,10 @@ export const ArrivalStatus = ({
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4 animate-fadeIn">
         <div className="bg-gray-900 rounded-xl p-4 text-white space-y-2">
           <div className="flex items-center justify-between border-b border-white/20 pb-2">
-            <h3 className="text-green-400 font-black text-sm uppercase">
+            <h3 className="text-karabao-light font-black text-sm uppercase">
               ถึงจุดส่งของ
             </h3>
-            <div className="bg-green-500 text-white rounded-full p-1.5">
+            <div className="bg-karabao text-white rounded-full p-1.5">
               <MapPin size={18} />
             </div>
           </div>
@@ -54,7 +54,7 @@ export const ArrivalStatus = ({
   }
   return (
     <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center space-y-4 animate-fadeIn">
-      <div className="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center">
+      <div className="w-16 h-16 bg-karabao/10 text-karabao rounded-full flex items-center justify-center">
         <MapPin size={32} />
       </div>
       <div>
