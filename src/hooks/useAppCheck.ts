@@ -56,3 +56,16 @@ export const useAppCheck = () => {
   };
 };
 
+// Make debug utilities available globally in development
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+  (window as any).debugAppCheck = async () => {
+    const { debugAppCheck } = await import("@/lib/firebase");
+    return debugAppCheck();
+  };
+  
+  (window as any).getAppCheckInfo = () => {
+    const { getAppCheckDebugInfo } = require("@/lib/firebase");
+    return getAppCheckDebugInfo();
+  };
+}
+

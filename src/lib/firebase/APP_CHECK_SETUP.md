@@ -6,7 +6,11 @@
 - [การตั้งค่า reCAPTCHA](#การตั้งค่า-recaptcha)
 - [การตั้งค่าใน Firebase Console](#การตั้งค่าใน-firebase-console)
 - [การใช้งาน](#การใช้งาน)
+- [Step-by-Step: reCAPTCHA Request Token Flow](#step-by-step-recaptcha-request-token-flow)
+- [Step-by-Step: Verify Token Flow](#step-by-step-verify-token-flow)
+- [การใช้งานกับ Firebase Services](#การใช้งานกับ-firebase-services)
 - [Troubleshooting](#troubleshooting)
+- [Resources](#resources)
 
 ## ภาพรวม
 
@@ -139,6 +143,108 @@ function MyComponent() {
   return <div>Your content</div>;
 }
 ```
+
+## Step-by-Step: reCAPTCHA Request Token Flow
+
+### Step 1: Client-side initialization
+
+ในโค้ดของคุณ (`src/lib/firebase/appCheck.ts`), App Check ถูก initialize:
+
+```typescript
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider(
+    process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+  ),
+  isTokenAutoRefreshEnabled: true,
+});
+```
+
+**สิ่งที่เกิดขึ้น:**
+
+- ✅ โหลด reCAPTCHA script โดยใช้ Site Key ของคุณ
+- ✅ ลงทะเบียนแอปของคุณกับ Google's reCAPTCHA service
+- ✅ เริ่มต้นการตรวจสอบ user interactions
+
+### Step 2: Request token generation
+
+เมื่อแอปของคุณทำการ request ไปยัง Firebase (เช่น Cloud Functions):
+
+App Check จะขอ reCAPTCHA token อัตโนมัติ:
+
+- ✅ วิเคราะห์พฤติกรรมผู้ใช้ (การเคลื่อนไหวของเมาส์, การคลิก, รูปแบบการพิมพ์)
+- ✅ คำนวณ risk score (0.0 = bot, 1.0 = human)
+- ✅ สร้าง token ที่มีอายุสั้น (โดยทั่วไป 1 ชั่วโมง)
+
+**Token ประกอบด้วย:**
+
+- reCAPTCHA response token
+- Timestamp
+- App identifier
+- Risk score (v3)
+
+### Step 3: Token attachment
+
+Firebase SDK จะทำอัตโนมัติ:
+
+- ✅ แนบ App Check token ไปกับ outgoing requests
+- ✅ รวมไว้ใน headers สำหรับ Cloud Functions calls
+- ✅ รีเฟรช token เมื่อหมดอายุ (ถ้า `isTokenAutoRefreshEnabled: true`)
+
+---
+
+## Step-by-Step: Verify Token Flow
+
+### Step 4: Server-side verification
+
+ใน Cloud Functions ของคุณ, App Check enforcement ถูกตั้งค่า:
+
+```typescript
+// ตัวอย่าง: ใน Cloud Functions configuration
+const ENFORCE_APP_CHECK = ENVIRONMENT !== "test";
+const FUNCTION_CONFIG = {
+  enforceAppCheck: ENFORCE_APP_CHECK,
+  // ...
+};
+```
+
+**สิ่งที่เกิดขึ้นระหว่างการตรวจสอบ:**
+
+1. Request มาถึง Cloud Function
+2. มี App Check token อยู่ใน headers
+3. Firebase Functions SDK จะ intercept request
+4. Firebase ตรวจสอบ token:
+
+```
+┌─────────────────┐   
+│  Cloud Function │   
+└────────┬────────┘            
+         │            
+         ▼   
+┌─────────────────┐   
+│  Firebase Admin │   
+│  SDK verifies   │  
+│  App Check token│   
+└────────┬────────┘            
+         │            
+         ▼   
+┌─────────────────┐   
+│  Google's       │   
+│  reCAPTCHA API  │   
+│  validates token│   
+└─────────────────┘
+```
+
+**การตรวจสอบที่ทำ:**
+
+- ✅ Token signature ถูกต้อง
+- ✅ Token ยังไม่หมดอายุ
+- ✅ Token ตรงกับ Firebase project ของคุณ
+- ✅ reCAPTCHA score ผ่าน threshold ที่ตั้งไว้ (ถ้ามีการตั้งค่า)
+
+**ผลลัพธ์:**
+
+- ✅ **Valid token**: Request ผ่านไปได้
+- ❌ **Invalid/missing token**: Request ถูกปฏิเสธ (ถ้า `enforceAppCheck: true`)
 
 ## การใช้งานกับ Firebase Services
 

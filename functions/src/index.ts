@@ -8,9 +8,20 @@
  */
 
 import { setGlobalOptions } from "firebase-functions";
+import { CONFIG_INFO, FUNCTION_CONFIG } from "./utils/config";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
+
+// Log configuration for debugging
+console.log("Cloud Functions Configuration:", CONFIG_INFO);
+
+// Set global options for all functions
+// This includes App Check enforcement and other global settings
+setGlobalOptions({
+  maxInstances: 10, // For cost control - maximum concurrent containers
+  ...FUNCTION_CONFIG, // Includes enforceAppCheck and other config
+});
 
 // For cost control, you can set the maximum number of containers that can be
 // running at the same time. This helps mitigate the impact of unexpected
@@ -22,7 +33,6 @@ import { setGlobalOptions } from "firebase-functions";
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
 
 // export const helloWorld = onRequest((request, response) => {
 //   logger.info("Hello logs!", {structuredData: true});

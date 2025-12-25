@@ -48,7 +48,7 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value:
-              "camera=(self), microphone=(self), geolocation=(self), interest-cohort=()",
+              'camera=(self), microphone=(self), geolocation=(self), interest-cohort=(), private-token=(self "https://www.google.com" "https://www.gstatic.com")',
           },
           {
             key: "Content-Security-Policy",
@@ -59,14 +59,14 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
-              // Connect sources: เพิ่ม google-analytics.com และ reCAPTCHA API endpoints
-              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.google.com https://api.geoapify.com https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://content-firebaseappcheck.googleapis.com",
+              // Connect sources: เพิ่ม google-analytics.com และ reCAPTCHA API endpoints, รวม debug logging server
+              "connect-src 'self' http://127.0.0.1:7243 https://*.firebaseio.com https://*.googleapis.com https://*.google.com https://api.geoapify.com https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://content-firebaseappcheck.googleapis.com",
               "media-src 'self' blob:",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
-              // Frame sources: เพิ่ม reCAPTCHA iframe sources
-              "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://www.google.com/recaptcha/",
+              // Frame sources: เพิ่ม reCAPTCHA iframe sources และ Firebase domains สำหรับ App Check
+              "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://www.google.com/recaptcha/ https://*.firebaseapp.com https://*.web.app https://*.firebaseappcheck.googleapis.com",
               "frame-ancestors 'self'",
               "upgrade-insecure-requests",
             ].join("; "),

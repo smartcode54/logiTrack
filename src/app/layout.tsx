@@ -39,6 +39,14 @@ export default function RootLayout({
     ? `https://www.google.com/recaptcha/enterprise.js?render=${recaptchaSiteKey}`
     : `https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`;
 
+  // #region agent log
+  // Log site key used in script (server-side, will be logged at build time)
+  if (typeof window === "undefined") {
+    console.log("[DEBUG] reCAPTCHA Script URL:", recaptchaScriptUrl);
+    console.log("[DEBUG] Site key used:", recaptchaSiteKey.substring(0, 20) + "...");
+  }
+  // #endregion
+
   return (
     <html lang="en">
       <head>

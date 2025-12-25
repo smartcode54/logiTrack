@@ -17,6 +17,12 @@ export {
   initializeAppCheckAuto,
   getAppCheck,
   isAppCheckInitialized,
+  // Debug utilities
+  getAppCheckDebugInfo,
+  logAppCheckDebugInfo,
+  verifyRecaptchaScript,
+  testRecaptchaToken,
+  debugAppCheck,
 } from "./appCheck";
 
 // Database (Firestore)
