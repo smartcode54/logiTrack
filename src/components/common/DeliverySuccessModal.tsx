@@ -81,7 +81,7 @@ export const DeliverySuccessModal = ({
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/60 flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-scaleIn">
+      <div className="bg-white rounded-3xl shadow-2xl w-[90vw] max-w-[90vw] h-[90vh] max-h-[90vh] overflow-hidden animate-scaleIn flex flex-col">
         {/* Header */}
         <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 text-white relative">
           <button
@@ -107,7 +107,7 @@ export const DeliverySuccessModal = ({
 
         {/* Content */}
         {deliveryData && (
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 overflow-y-auto flex-1">
             <div className="bg-gray-50 rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between border-b border-gray-200 pb-2">
                 <div className="flex items-center gap-2">

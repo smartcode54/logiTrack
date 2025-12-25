@@ -1,0 +1,13 @@
+{
+  "_comment": "Template for reCAPTCHA Enterprise API request body",
+  "_instructions": "Replace the following placeholders:",
+  "_TOKEN": "The token returned from grecaptcha.enterprise.execute() call",
+  "_USER_ACTION": "Optional. The user-initiated action specified in grecaptcha.enterprise.execute()",
+  "_SITE_KEY": "Your reCAPTCHA Enterprise site key (from NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY in .env)",
+  "event": {
+    "token": "TOKEN",
+    "expectedAction": "USER_ACTION",
+    "siteKey": "SITE_KEY_FROM_ENV"
+  }
+}
+

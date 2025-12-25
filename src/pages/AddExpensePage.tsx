@@ -900,7 +900,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
       {/* Expense Preview Modal */}
       {showPreviewModal && (
         <div className="fixed inset-0 z-[200] bg-black/60 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden animate-scaleIn flex flex-col">
+          <div className="bg-white rounded-3xl shadow-2xl w-[90vw] max-w-[90vw] h-[90vh] max-h-[90vh] overflow-hidden animate-scaleIn flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-karabao-light to-karabao p-6 text-white relative">
               <button

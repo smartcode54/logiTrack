@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# reCAPTCHA request files (may contain sensitive tokens)
+request.json
+
 # vercel
 .vercel
 

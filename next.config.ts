@@ -3,12 +3,12 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Static export for Firebase Hosting
   output: "export",
-  
+
   // Disable image optimization for static export
   images: {
     unoptimized: true,
   },
-  
+
   // Disable Turbopack if experiencing panics
   // Remove this if the issue is resolved
   // experimental: {
@@ -54,19 +54,19 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              // Script sources: เพิ่ม apis.google.com และ googletagmanager.com สำหรับ Firebase และ Analytics
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com",
+              // Script sources: เพิ่ม reCAPTCHA Enterprise script source
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com https://www.google.com/recaptcha/",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
-              // Connect sources: เพิ่ม googletagmanager.com สำหรับ Analytics
-              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.google.com https://api.geoapify.com https://www.google.com https://www.gstatic.com https://www.googletagmanager.com",
+              // Connect sources: เพิ่ม google-analytics.com และ reCAPTCHA API endpoints
+              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.google.com https://api.geoapify.com https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://content-firebaseappcheck.googleapis.com",
               "media-src 'self' blob:",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
-              // Frame sources: เพิ่ม googletagmanager.com สำหรับ Analytics iframes
-              "frame-src 'self' https://www.google.com https://www.googletagmanager.com",
+              // Frame sources: เพิ่ม reCAPTCHA iframe sources
+              "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://www.google.com/recaptcha/",
               "frame-ancestors 'self'",
               "upgrade-insecure-requests",
             ].join("; "),

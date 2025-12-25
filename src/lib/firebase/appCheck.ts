@@ -117,9 +117,9 @@ export const initializeAppCheckAuto = (): AppCheck | null => {
     return null;
   }
 
-  // Priority: Enterprise > V3
+  // Priority: Enterprise > V3 SiteKey > V3 Site Key
   const enterpriseKey = process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_SITE_KEY;
-  const v3Key = process.env.NEXT_PUBLIC_RECAPTCHA_V3_SITE_KEY;
+  const v3Key = process.env.NEXT_PUBLIC_RECAPTCHA_SITEKEY || process.env.NEXT_PUBLIC_RECAPTCHA_V3_SITE_KEY;
 
   if (enterpriseKey) {
     console.log("Initializing App Check with reCAPTCHA Enterprise");
