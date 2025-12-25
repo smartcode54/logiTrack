@@ -1,6 +1,6 @@
 {
   "name": "LogiTrack",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "kill:dev": "powershell -Command \"Get-Process | Where-Object {$_.ProcessName -eq 'node'} | Stop-Process -Force -ErrorAction SilentlyContinue; if (Test-Path '.next\\dev\\lock') { Remove-Item '.next\\dev\\lock' -Force }; Write-Host 'Killed Next.js processes and removed lock file'\"",

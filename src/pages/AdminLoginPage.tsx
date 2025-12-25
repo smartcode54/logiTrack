@@ -1,28 +1,52 @@
 "use client";
 
-import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
+import { httpsCallable } from "firebase/functions";
+import { functions } from "@/lib/firebase/config";
 import { Loader2, Lock, Mail, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+interface CheckAdminResponse {
+  isAdmin: boolean;
+}
+
 export const AdminLoginPage = () => {
-  const { signIn, signInWithGoogle, logout, loading: authLoading } = useFirebaseAuth();
-  const { isAdmin, loading: adminLoading } = useAdminAuth();
+  const { signIn, signInWithGoogle, logout, loading: authLoading, isAuthenticated, user } = useFirebaseAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [checkingAdmin, setCheckingAdmin] = useState(false);
   const router = useRouter();
 
-  const loading = authLoading || adminLoading;
-
-  // Redirect if already authenticated and is admin
+  // Check admin status only if already authenticated
   useEffect(() => {
-    if (!loading && isAdmin) {
-      router.push("/admin");
-    }
-  }, [isAdmin, loading, router]);
+    const checkAdminAndRedirect = async () => {
+      if (!isAuthenticated || !user || authLoading) {
+        return;
+      }
+
+      try {
+        setCheckingAdmin(true);
+        const checkAdmin = httpsCallable<unknown, CheckAdminResponse>(functions, "check_admin");
+        const result = await checkAdmin();
+        
+        if (result.data.isAdmin) {
+          router.push("/admin");
+        }
+      } catch (error) {
+        // Silently fail - user can still login
+        console.error("Error checking admin status:", error);
+      } finally {
+        setCheckingAdmin(false);
+      }
+    };
+
+    checkAdminAndRedirect();
+  }, [isAuthenticated, user, authLoading, router]);
+
+  const loading = authLoading || checkingAdmin;
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,14 +57,21 @@ export const AdminLoginPage = () => {
       const result = await signIn(email, password);
       if (result.success) {
         // Check admin status after login
-        // The useAdminAuth hook will handle the redirect
-        setTimeout(() => {
-          if (!isAdmin) {
+        try {
+          const checkAdmin = httpsCallable<unknown, CheckAdminResponse>(functions, "check_admin");
+          const adminResult = await checkAdmin();
+          
+          if (adminResult.data.isAdmin) {
+            router.push("/admin");
+          } else {
             setLocalError("คุณไม่มีสิทธิ์เข้าถึง Admin Portal");
-            // Sign out if not admin
-            logout();
+            await logout();
           }
-        }, 1000);
+        } catch (error) {
+          // If check fails, still allow login attempt
+          console.error("Error checking admin status:", error);
+          setLocalError("ไม่สามารถตรวจสอบสิทธิ์ได้ กรุณาลองใหม่อีกครั้ง");
+        }
       } else {
         setLocalError(result.error || "เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
       }
@@ -59,13 +90,21 @@ export const AdminLoginPage = () => {
       const result = await signInWithGoogle();
       if (result.success) {
         // Check admin status after login
-        setTimeout(() => {
-          if (!isAdmin) {
+        try {
+          const checkAdmin = httpsCallable<unknown, CheckAdminResponse>(functions, "check_admin");
+          const adminResult = await checkAdmin();
+          
+          if (adminResult.data.isAdmin) {
+            router.push("/admin");
+          } else {
             setLocalError("คุณไม่มีสิทธิ์เข้าถึง Admin Portal");
-            // Sign out if not admin
-            logout();
+            await logout();
           }
-        }, 1000);
+        } catch (error) {
+          // If check fails, still allow login attempt
+          console.error("Error checking admin status:", error);
+          setLocalError("ไม่สามารถตรวจสอบสิทธิ์ได้ กรุณาลองใหม่อีกครั้ง");
+        }
       } else if (result.error) {
         setLocalError(result.error);
       }
@@ -84,16 +123,23 @@ export const AdminLoginPage = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4" />
           <p className="text-white font-medium">กำลังตรวจสอบการเข้าสู่ระบบ...</p>
         </div>
       </div>
     );
   }
 
-  // Don't render if already admin (will redirect)
-  if (isAdmin) {
-    return null;
+  // Don't render if checking admin (will redirect if admin)
+  if (checkingAdmin && isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4" />
+          <p className="text-white font-medium">กำลังตรวจสอบสิทธิ์...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

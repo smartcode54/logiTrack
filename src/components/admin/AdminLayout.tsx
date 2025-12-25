@@ -1,29 +1,21 @@
 "use client";
 
-import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { AdminRouteGuard } from "./AdminRouteGuard";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import { BarChart3, Home, LogOut, Settings, Shield, Users, Workflow } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
-  const { isAdmin, loading: adminLoading } = useAdminAuth();
   const { logout } = useFirebaseAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  // Redirect to login if not admin
-  useEffect(() => {
-    if (!adminLoading && !isAdmin) {
-      router.push("/admin/login");
-    }
-  }, [isAdmin, adminLoading, router]);
 
   const handleLogout = async () => {
     await logout();
@@ -38,22 +30,8 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 
-  if (adminLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">กำลังโหลด...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return null;
-  }
-
   return (
+    <AdminRouteGuard>
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div
@@ -71,10 +49,17 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
               <span className="font-bold text-lg text-gray-900">Admin Portal</span>
             </div>
             <button
+              type="button"
               onClick={() => setSidebarOpen(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  setSidebarOpen(false);
+                }
+              }}
               className="lg:hidden p-1 rounded-md hover:bg-gray-100"
             >
               <svg className="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <title>Close sidebar</title>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -104,6 +89,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           {/* Logout */}
           <div className="p-4 border-t border-gray-200">
             <button
+              type="button"
               onClick={handleLogout}
               className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
             >
@@ -119,10 +105,17 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         {/* Top Bar */}
         <div className="sticky top-0 z-40 bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6">
           <button
+            type="button"
             onClick={() => setSidebarOpen(!sidebarOpen)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                setSidebarOpen(!sidebarOpen);
+              }
+            }}
             className="p-2 rounded-md hover:bg-gray-100 lg:hidden"
           >
             <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <title>Toggle sidebar</title>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
@@ -138,9 +131,18 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setSidebarOpen(false);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close sidebar"
         />
       )}
     </div>
+    </AdminRouteGuard>
   );
 };
 
