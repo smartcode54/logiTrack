@@ -48,7 +48,7 @@ export const jobsService = {
       return querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as Job[];
+      })) as unknown as Job[];
     } catch (error) {
       console.error("Error getting jobs:", error);
       throw error;
@@ -61,7 +61,7 @@ export const jobsService = {
       const docRef = doc(db, JOBS_COLLECTION, jobId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        return { id: docSnap.id, ...docSnap.data() } as Job;
+        return { id: docSnap.id, ...docSnap.data() } as unknown as Job;
       }
       return null;
     } catch (error) {
@@ -128,7 +128,7 @@ export const jobsService = {
         const jobs = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as Job[];
+        })) as unknown as Job[];
         callback(jobs);
       },
       (error) => {
@@ -154,7 +154,7 @@ export const deliveredJobsService = {
       return querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as DeliveredJob[];
+      })) as unknown as DeliveredJob[];
     } catch (error) {
       console.error("Error getting delivered jobs:", error);
       throw error;
@@ -217,7 +217,7 @@ export const deliveredJobsService = {
         const jobs = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as DeliveredJob[];
+        })) as unknown as DeliveredJob[];
         callback(jobs);
       },
       (error) => {
@@ -243,7 +243,7 @@ export const expensesService = {
       return querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as Expense[];
+      })) as unknown as Expense[];
     } catch (error) {
       console.error("Error getting expenses:", error);
       throw error;
@@ -266,7 +266,7 @@ export const expensesService = {
       return querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as Expense[];
+      })) as unknown as Expense[];
     } catch (error) {
       console.error("Error getting expenses by category:", error);
       throw error;
@@ -337,7 +337,7 @@ export const expensesService = {
         const expenses = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as Expense[];
+        })) as unknown as Expense[];
         callback(expenses);
       },
       (error) => {

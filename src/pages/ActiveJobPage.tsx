@@ -1,34 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
 // 1. เพิ่ม Icon ให้ครบเพื่อแก้ปัญหา 'Truck' refers to a value but is used as a type
-import {
-  CheckCircle,
-  RefreshCw,
-  LocateFixed,
-  MapPin,
-  Truck,
-  FileText,
-  Navigation,
-  AlertTriangle,
-} from "lucide-react";
+import { AlertTriangle, CheckCircle, FileText, LocateFixed, MapPin, Navigation, RefreshCw, Truck } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
 
 import { ScannerOverlay } from "@/components/scanner/ScannerOverlay";
-import { CheckInCapture } from "@/components/workflow/CheckInCapture";
-import { PickupPhotoUpload } from "@/components/workflow/PickupPhotoUpload";
-import { DepartureStatus } from "@/components/workflow/DepartureStatus";
 import { ArrivalStatus } from "@/components/workflow/ArrivalStatus";
+import { CheckInCapture } from "@/components/workflow/CheckInCapture";
 import { DeliveryPhotoUpload } from "@/components/workflow/DeliveryPhotoUpload";
+import { DepartureStatus } from "@/components/workflow/DepartureStatus";
 import { IncidentPhotoUpload } from "@/components/workflow/IncidentPhotoUpload";
 import { IncidentSelection } from "@/components/workflow/IncidentSelection";
+import { PickupPhotoUpload } from "@/components/workflow/PickupPhotoUpload";
 
-import {
-  Timestamp,
-  GeoapifySearchResult,
-  PickupPhotos,
-  DeliveryPhotos,
-  IncidentPhotos,
-} from "@/types";
+import type { CheckInPhotos, DeliveryPhotos, GeoapifySearchResult, IncidentPhotos, PickupPhotos, Timestamp } from "@/types";
 
 interface ActiveJobPageProps {
   jobId?: string;
@@ -40,8 +25,8 @@ interface ActiveJobPageProps {
   locationSyncedTime: Timestamp | null;
   onRefreshLocation: () => void;
   step: number;
-  checkInPhoto: string | null;
-  setCheckInPhoto: (value: string | null) => void;
+  checkInPhotos: CheckInPhotos;
+  setCheckInPhotos: (value: CheckInPhotos) => void;
   runSheetNumber: string;
   pickupPhotos: PickupPhotos;
   setPickupPhotos: (value: PickupPhotos) => void;
@@ -81,8 +66,8 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
     locationSyncedTime,
     onRefreshLocation,
     step,
-    checkInPhoto,
-    setCheckInPhoto,
+    checkInPhotos,
+    setCheckInPhotos,
     runSheetNumber,
     pickupPhotos,
     setPickupPhotos,
@@ -121,25 +106,15 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
   }, [getSteps]);
 
   // ถ้ายังไม่ Mount (ช่วง SSR) ให้คืนค่าว่างเพื่อไม่ให้พังจากฟังก์ชันที่ยังไม่มา
-  if (!mounted)
-    return <div className="p-4 italic text-gray-400">Loading Workflow...</div>;
+  if (!mounted) return <div className="p-4 italic text-gray-400">Loading Workflow...</div>;
 
   return (
     <div className="p-4 space-y-6 animate-fadeIn">
-      {isScanning && (
-        <ScannerOverlay
-          setIsScanning={setIsScanning}
-          setRunSheetNumber={setRunSheetNumber}
-        />
-      )}
+      {isScanning && <ScannerOverlay setIsScanning={setIsScanning} setRunSheetNumber={setRunSheetNumber} />}
 
       {/* Location Section */}
       <div className="bg-white border-l-4 border-karabao p-4 rounded-r-xl shadow-sm space-y-3">
-        {jobId && (
-          <h1 className="text-2xl font-black text-karabao uppercase tracking-wider mb-2 text-right">
-            #{jobId}
-          </h1>
-        )}
+        {jobId && <h1 className="text-2xl font-black text-karabao uppercase tracking-wider mb-2 text-right">#{jobId}</h1>}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2 text-sm font-black text-karabao uppercase">
             <LocateFixed size={16} />
@@ -148,28 +123,15 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
           <button
             onClick={onRefreshLocation}
             disabled={isLoadingAddress}
-            className={`p-2 rounded-lg transition-all ${
-              isLoadingAddress
-                ? "text-gray-400"
-                : "text-karabao hover:bg-karabao/10"
-            }`}
+            className={`p-2 rounded-lg transition-all ${isLoadingAddress ? "text-gray-400" : "text-karabao hover:bg-karabao/10"}`}
           >
-            <RefreshCw
-              size={18}
-              className={isLoadingAddress ? "animate-spin" : ""}
-            />
+            <RefreshCw size={18} className={isLoadingAddress ? "animate-spin" : ""} />
           </button>
         </div>
         {currentAddress?.address && (
           <div className="space-y-1">
-            <p className="text-sm font-bold text-gray-800">
-              {currentAddress.address.formatted || "ตรวจพบพิกัดแล้ว"}
-            </p>
-            {locationSyncedTime && (
-              <p className="text-xs text-gray-500">
-                อัปเดตเมื่อ: {locationSyncedTime.time}
-              </p>
-            )}
+            <p className="text-sm font-bold text-gray-800">{currentAddress.address.formatted || "ตรวจพบพิกัดแล้ว"}</p>
+            {locationSyncedTime && <p className="text-xs text-gray-500">อัปเดตเมื่อ: {locationSyncedTime.time}</p>}
           </div>
         )}
       </div>
@@ -178,60 +140,35 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
         <div className="space-y-4">
           {steps.map((stepLabel, i) => {
-            const stepIcon =
-              typeof getStepIcon === "function" ? getStepIcon(i) : null;
+            const stepIcon = typeof getStepIcon === "function" ? getStepIcon(i) : null;
 
             return (
               <div key={`step-${i}`} className="relative">
                 <div className="flex items-start gap-4">
                   <div
                     className={`z-10 w-10 h-10 rounded-xl flex items-center justify-center shadow-md ${
-                      i < step
-                        ? "bg-karabao text-white"
-                        : i === step
-                        ? "bg-blue-600 text-white"
-                        : "bg-white border-2 border-gray-100 text-gray-300"
+                      i < step ? "bg-karabao text-white" : i === step ? "bg-green-600 text-white" : "bg-white border-2 border-gray-100 text-gray-300"
                     }`}
                   >
                     {/* 3. แก้ไขจุดที่อาจเกิด TypeError: S is not a function */}
-                    {React.isValidElement(stepIcon) ? (
-                      stepIcon
-                    ) : (
-                      <Truck size={18} />
-                    )}
+                    {React.isValidElement(stepIcon) ? stepIcon : <Truck size={18} />}
                   </div>
                   <div className="flex-1 pt-2">
-                    <p
-                      className={`font-black text-sm uppercase ${
-                        i < step
-                          ? "text-karabao"
-                          : i === step
-                          ? "text-blue-700"
-                          : "text-gray-400"
-                      }`}
-                    >
-                      {typeof getDisplayLabel === "function"
-                        ? getDisplayLabel(i)
-                        : stepLabel}
+                    <p className={`font-black text-sm uppercase ${i < step ? "text-karabao" : i === step ? "text-green-700" : "text-gray-400"}`}>
+                      {typeof getDisplayLabel === "function" ? getDisplayLabel(i) : stepLabel}
                     </p>
                   </div>
                 </div>
 
                 {/* Vertical Line */}
-                {i < steps.length - 1 && (
-                  <div
-                    className={`absolute left-5 top-10 w-0.5 h-6 ${
-                      i < step ? "bg-karabao" : "bg-gray-200"
-                    }`}
-                  />
-                )}
+                {i < steps.length - 1 && <div className={`absolute left-5 top-10 w-0.5 h-6 ${i < step ? "bg-karabao" : "bg-gray-200"}`} />}
 
                 {/* Step Components */}
                 <div className="mt-2">
                   {i === 0 && (step === 0 || confirmedCheckInTime) && (
                     <CheckInCapture
-                      checkInPhoto={checkInPhoto}
-                      setCheckInPhoto={setCheckInPhoto}
+                      checkInPhotos={checkInPhotos}
+                      setCheckInPhotos={setCheckInPhotos}
                       confirmedTime={confirmedCheckInTime}
                       currentAddress={currentAddress}
                     />
@@ -248,10 +185,7 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
                     />
                   )}
                   {i === 2 && (step === 2 || confirmedDepartureTime) && (
-                    <DepartureStatus
-                      confirmedTime={confirmedDepartureTime}
-                      currentAddress={currentAddress}
-                    />
+                    <DepartureStatus confirmedTime={confirmedDepartureTime} currentAddress={currentAddress} />
                   )}
                   {i === 3 && (step === 3 || confirmedDepartureTime) && (
                     <IncidentSelection
@@ -264,54 +198,38 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
                       confirmedDepartureTime={!!confirmedDepartureTime}
                     />
                   )}
-                  {isDelayed &&
-                    i === 4 &&
-                    (step === 4 || confirmedIncidentTime) && (
-                      <IncidentPhotoUpload
-                        incidentPhotos={incidentPhotos}
-                        setIncidentPhotos={setIncidentPhotos}
-                        confirmedTime={confirmedIncidentTime}
-                        currentAddress={currentAddress}
-                      />
-                    )}
-                  {isDelayed &&
-                    i === 5 &&
-                    (step === 5 || confirmedArrivalTime) && (
-                      <ArrivalStatus
-                        confirmedTime={confirmedArrivalTime}
-                        currentAddress={currentAddress}
-                      />
-                    )}
-                  {isDelayed &&
-                    i === 6 &&
-                    (step === 6 || confirmedDeliveryTime) && (
-                      <DeliveryPhotoUpload
-                        deliveryPhotos={deliveryPhotos}
-                        setDeliveryPhotos={setDeliveryPhotos}
-                        runSheetNumber={runSheetNumber}
-                        confirmedTime={confirmedDeliveryTime}
-                        currentAddress={currentAddress}
-                      />
-                    )}
-                  {!isDelayed &&
-                    i === 4 &&
-                    (step === 4 || confirmedArrivalTime) && (
-                      <ArrivalStatus
-                        confirmedTime={confirmedArrivalTime}
-                        currentAddress={currentAddress}
-                      />
-                    )}
-                  {!isDelayed &&
-                    i === 5 &&
-                    (step === 5 || confirmedDeliveryTime) && (
-                      <DeliveryPhotoUpload
-                        deliveryPhotos={deliveryPhotos}
-                        setDeliveryPhotos={setDeliveryPhotos}
-                        runSheetNumber={runSheetNumber}
-                        confirmedTime={confirmedDeliveryTime}
-                        currentAddress={currentAddress}
-                      />
-                    )}
+                  {isDelayed && i === 4 && (step === 4 || confirmedIncidentTime) && (
+                    <IncidentPhotoUpload
+                      incidentPhotos={incidentPhotos}
+                      setIncidentPhotos={setIncidentPhotos}
+                      confirmedTime={confirmedIncidentTime}
+                      currentAddress={currentAddress}
+                    />
+                  )}
+                  {isDelayed && i === 5 && (step === 5 || confirmedArrivalTime) && (
+                    <ArrivalStatus confirmedTime={confirmedArrivalTime} currentAddress={currentAddress} />
+                  )}
+                  {isDelayed && i === 6 && (step === 6 || confirmedDeliveryTime) && (
+                    <DeliveryPhotoUpload
+                      deliveryPhotos={deliveryPhotos}
+                      setDeliveryPhotos={setDeliveryPhotos}
+                      runSheetNumber={runSheetNumber}
+                      confirmedTime={confirmedDeliveryTime}
+                      currentAddress={currentAddress}
+                    />
+                  )}
+                  {!isDelayed && i === 4 && (step === 4 || confirmedArrivalTime) && (
+                    <ArrivalStatus confirmedTime={confirmedArrivalTime} currentAddress={currentAddress} />
+                  )}
+                  {!isDelayed && i === 5 && (step === 5 || confirmedDeliveryTime) && (
+                    <DeliveryPhotoUpload
+                      deliveryPhotos={deliveryPhotos}
+                      setDeliveryPhotos={setDeliveryPhotos}
+                      runSheetNumber={runSheetNumber}
+                      confirmedTime={confirmedDeliveryTime}
+                      currentAddress={currentAddress}
+                    />
+                  )}
                 </div>
               </div>
             );
@@ -323,18 +241,12 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
           <button
             onClick={onNextStep}
             disabled={
-              (step === 0 && !checkInPhoto) ||
+              (step === 0 && (!checkInPhotos?.truckAndLicense || !checkInPhotos?.customerCheckIn)) ||
               (step === 1 && (!pickupPhotos?.runSheet || !runSheetNumber)) ||
-              (step === 3 &&
-                isDelayed &&
-                (!incidentType ||
-                  (incidentType === "other" && !incidentOtherDescription))) ||
+              (step === 3 && isDelayed && (!incidentType || (incidentType === "other" && !incidentOtherDescription))) ||
               (isDelayed &&
                 step === 4 &&
-                (!incidentPhotos?.incident1 ||
-                  !incidentPhotos?.incident2 ||
-                  !incidentPhotos?.incident3 ||
-                  !incidentPhotos?.incident4)) ||
+                (!incidentPhotos?.incident1 || !incidentPhotos?.incident2 || !incidentPhotos?.incident3 || !incidentPhotos?.incident4)) ||
               (isDelayed &&
                 step === 6 &&
                 (!deliveryPhotos?.beforeOpen ||
@@ -343,36 +255,26 @@ export const ActiveJobPage = (props: ActiveJobPageProps) => {
                   !deliveryPhotos?.deliveryRunSheet)) ||
               (!isDelayed &&
                 step === 5 &&
-                (!deliveryPhotos?.beforeOpen ||
-                  !deliveryPhotos?.breakSeal ||
-                  !deliveryPhotos?.emptyContainer ||
-                  !deliveryPhotos?.deliveryRunSheet))
+                (!deliveryPhotos?.beforeOpen || !deliveryPhotos?.breakSeal || !deliveryPhotos?.emptyContainer || !deliveryPhotos?.deliveryRunSheet))
             }
             className={`w-full text-white font-black py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 ${
-              (step === 0 && !checkInPhoto) ||
+              (step === 0 && (!checkInPhotos?.truckAndLicense || !checkInPhotos?.customerCheckIn)) ||
               (step === 1 && !runSheetNumber) ||
-              (step === 3 &&
-                isDelayed &&
-                (!incidentType ||
-                  (incidentType === "other" && !incidentOtherDescription))) ||
+              (step === 3 && isDelayed && (!incidentType || (incidentType === "other" && !incidentOtherDescription))) ||
               (isDelayed &&
                 step === 4 &&
-                (!incidentPhotos?.incident1 ||
-                  !incidentPhotos?.incident2 ||
-                  !incidentPhotos?.incident3 ||
-                  !incidentPhotos?.incident4)) ||
+                (!incidentPhotos?.incident1 || !incidentPhotos?.incident2 || !incidentPhotos?.incident3 || !incidentPhotos?.incident4)) ||
               (isDelayed &&
                 step === 6 &&
                 (!deliveryPhotos?.beforeOpen ||
                   !deliveryPhotos?.breakSeal ||
                   !deliveryPhotos?.emptyContainer ||
                   !deliveryPhotos?.deliveryRunSheet)) ||
-              (!isDelayed &&
-                step === 5 &&
-                (!deliveryPhotos?.beforeOpen ||
-                  !deliveryPhotos?.breakSeal ||
-                  !deliveryPhotos?.emptyContainer ||
-                  !deliveryPhotos?.deliveryRunSheet))
+              (
+                !isDelayed &&
+                  step === 5 &&
+                  (!deliveryPhotos?.beforeOpen || !deliveryPhotos?.breakSeal || !deliveryPhotos?.emptyContainer || !deliveryPhotos?.deliveryRunSheet)
+              )
                 ? "bg-gray-400"
                 : "bg-karabao active:scale-95"
             }`}

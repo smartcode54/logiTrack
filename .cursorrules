@@ -1,0 +1,292 @@
+# LogiTrack Project - Cursor Rules
+# รวบรวมข้อผิดพลาดและ best practices จากประสบการณ์พัฒนาโปรเจกต์
+
+## 🔴 Critical Errors to Avoid
+
+### 1. Firebase Cloud Functions Naming Convention
+**ERROR**: ใช้ camelCase สำหรับ function names (เช่น `reverseGeocode`)
+**FIX**: ใช้ snake_case เสมอ (เช่น `reverse_geocode`)
+**REASON**: Cloud Run service names ไม่รองรับ camelCase และจะเกิด error "Could not create Cloud Run service"
+
+```typescript
+// ❌ WRONG
+export const reverseGeocode = onCall(...);
+
+// ✅ CORRECT
+export const reverse_geocode = onCall(...);
+```
+
+### 2. Error Handling in Cloud Functions
+**ERROR**: ใช้ `throw new Error()` ใน Cloud Functions
+**FIX**: ใช้ `throw new HttpsError()` เสมอ
+**REASON**: HttpsError จัดการ CORS และ error response format อัตโนมัติ
+
+```typescript
+// ❌ WRONG
+throw new Error("Something went wrong");
+
+// ✅ CORRECT
+throw new HttpsError("internal", "Something went wrong");
+```
+
+### 3. Content Security Policy (CSP)
+**ERROR**: ลืมเพิ่ม Firebase Functions URLs ใน CSP
+**FIX**: ต้องเพิ่ม `https://*.cloudfunctions.net` ใน `connect-src`
+**REASON**: Browser จะ block requests ไปยัง Cloud Functions
+
+```typescript
+// ✅ CORRECT - next.config.ts และ firebase.json
+"connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.google.com https://api.geoapify.com https://www.google.com https://www.gstatic.com https://www.googletagmanager.com https://www.google-analytics.com https://content-firebaseappcheck.googleapis.com https://*.cloudfunctions.net"
+```
+
+### 4. Firebase Admin Initialization
+**ERROR**: ไม่ตรวจสอบว่า admin ถูก initialize แล้วหรือยัง
+**FIX**: ตรวจสอบ `admin.apps.length` ก่อน initialize
+**REASON**: จะเกิด error ถ้า initialize หลายครั้ง
+
+```typescript
+// ✅ CORRECT
+import * as admin from "firebase-admin";
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
+
+const db = admin.firestore();
+const storage = admin.storage();
+```
+
+### 5. Import Ordering (Biome)
+**ERROR**: Import statements ไม่เรียงลำดับตาม Biome rules
+**FIX**: เรียง imports ตามลำดับ: external packages (alphabetical) > internal modules
+**REASON**: Biome จะ error ถ้า imports ไม่เรียงลำดับ
+
+```typescript
+// ✅ CORRECT
+import * as admin from "firebase-admin";
+import { HttpsError, onCall } from "firebase-functions/v2/https";
+```
+
+### 6. Geoapify API Parameters
+**ERROR**: ใช้ `lang` parameter ใน Reverse Geocoding API
+**FIX**: อย่าใช้ `lang` parameter (API ไม่รองรับ)
+**REASON**: จะเกิด 400 Bad Request error
+
+```typescript
+// ❌ WRONG
+const params = new URLSearchParams({ apiKey, lat: latitude.toString(), lon: longitude.toString(), lang: "th" });
+
+// ✅ CORRECT
+const params = new URLSearchParams({ apiKey, lat: latitude.toString(), lon: longitude.toString() });
+```
+
+### 7. PowerShell Scripts
+**ERROR**: ใช้ emoji characters ใน PowerShell scripts
+**FIX**: อย่าใช้ emoji (ใช้ plain text แทน)
+**REASON**: PowerShell จะเกิด parsing error
+
+```powershell
+# ❌ WRONG
+echo "🚀 Starting..."
+
+# ✅ CORRECT
+echo "Starting..."
+```
+
+**ERROR**: ใช้ `&&` สำหรับ command chaining ใน PowerShell
+**FIX**: ใช้ `;` แทน `&&`
+**REASON**: PowerShell ไม่รองรับ `&&`
+
+```powershell
+# ❌ WRONG
+cd functions && npm run build
+
+# ✅ CORRECT
+cd functions; npm run build
+```
+
+### 8. Environment Variables Priority
+**ERROR**: ใช้ `functions.config()` เป็นหลัก
+**FIX**: ใช้ priority: `.env` (NEXT_PUBLIC_*) > environment variables > functions.config()
+**REASON**: เพื่อรองรับ local development และ deployment
+
+```typescript
+// ✅ CORRECT
+let apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY || process.env.GEOAPIFY_API_KEY;
+
+if (!apiKey) {
+  try {
+    const functions = require("firebase-functions");
+    const config = functions.config();
+    apiKey = config?.geoapify?.api_key;
+  } catch {
+    // functions.config() not available, ignore
+  }
+}
+```
+
+### 9. Authentication in Cloud Functions
+**ERROR**: รับ userId เป็น parameter แทนการใช้ auth context
+**FIX**: ใช้ `request.auth.uid` จาก Cloud Function context
+**REASON**: ปลอดภัยกว่าและป้องกันการ spoof userId
+
+```typescript
+// ❌ WRONG
+export const saveActivity = onCall(async (request) => {
+  const { userId, activity } = request.data;
+  // ...
+});
+
+// ✅ CORRECT
+export const saveActivity = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated");
+  }
+  const userId = request.auth.uid;
+  const { activity } = request.data;
+  // ...
+});
+```
+
+### 10. Base64 to Blob Conversion
+**ERROR**: ใช้ `fetch(base64)` โดยตรงใน client-side
+**FIX**: ใช้ proper base64 to buffer conversion ใน Cloud Functions
+**REASON**: เพื่อประสิทธิภาพและความปลอดภัย
+
+```typescript
+// ✅ CORRECT - Cloud Functions
+const base64Data = base64String.replace(/^data:image\/\w+;base64,/, "");
+const buffer = Buffer.from(base64Data, "base64");
+```
+
+### 11. Storage File Paths
+**ERROR**: ใช้ file paths ที่ไม่สอดคล้องกัน
+**FIX**: ใช้ consistent path structure: `workflows/photos/{userId}/{jobId}/{workflowStep}/{fileName}`
+**REASON**: เพื่อจัดการไฟล์ได้ง่ายและป้องกัน conflicts
+
+```typescript
+// ✅ CORRECT
+const filePath = `workflows/photos/${userId}/${jobId}/${workflowStep}/${fileName}`;
+```
+
+### 12. Storage Public Access
+**ERROR**: ลืม make file public หลังจาก upload
+**FIX**: เรียก `file.makePublic()` หลังจาก upload
+**REASON**: เพื่อให้สามารถ access ไฟล์ได้จาก URL
+
+```typescript
+// ✅ CORRECT
+await file.save(buffer, { metadata: { ... } });
+await file.makePublic();
+return `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+```
+
+### 13. Biome Formatting
+**ERROR**: Multi-line console.error และ variable assignments
+**FIX**: ใช้ single line สำหรับ console.error และ simple assignments
+**REASON**: Biome formatter ต้องการ single line
+
+```typescript
+// ❌ WRONG
+console.error(
+  `Error message:`,
+  errorData
+);
+
+// ✅ CORRECT
+console.error(`Error message:`, errorData);
+```
+
+### 14. Unused Imports/Interfaces
+**ERROR**: สร้าง interfaces หรือ imports ที่ไม่ได้ใช้
+**FIX**: ลบ unused code ออก
+**REASON**: เพื่อความสะอาดของ code และลด bundle size
+
+### 15. Firebase Functions Region
+**ERROR**: ไม่ระบุ region สำหรับ Cloud Functions
+**FIX**: ระบุ region: `asia-southeast1` เสมอ
+**REASON**: เพื่อให้ client และ functions อยู่ใน region เดียวกัน
+
+```typescript
+// ✅ CORRECT
+export const myFunction = onCall(
+  {
+    region: "asia-southeast1",
+  },
+  async (request) => {
+    // ...
+  }
+);
+```
+
+### 16. Client-side Functions Config
+**ERROR**: ไม่ระบุ region ใน client-side functions config
+**FIX**: ระบุ region เมื่อ initialize functions
+**REASON**: เพื่อให้เรียกไปยัง region ที่ถูกต้อง
+
+```typescript
+// ✅ CORRECT
+import { getFunctions } from "firebase/functions";
+functions = getFunctions(app, "asia-southeast1");
+```
+
+### 17. TypeScript Node Protocol
+**ERROR**: ใช้ `require("path")` แทน `require("node:path")`
+**FIX**: ใช้ `node:` protocol สำหรับ built-in modules
+**REASON**: Biome linting rules
+
+```typescript
+// ❌ WRONG
+require("path").join(...)
+
+// ✅ CORRECT
+require("node:path").join(...)
+```
+
+## ✅ Best Practices
+
+### Code Organization
+- แยก Cloud Functions ออกเป็นไฟล์ตาม domain (geocoding, workflow, etc.)
+- ใช้ consistent naming: snake_case สำหรับ functions, camelCase สำหรับ variables
+- แยก client-side และ server-side code ให้ชัดเจน
+
+### Error Handling
+- ใช้ HttpsError ใน Cloud Functions เสมอ
+- Validate input data ก่อนประมวลผล
+- Log errors พร้อม context information
+
+### Security
+- ตรวจสอบ authentication ในทุก Cloud Function
+- ใช้ `request.auth.uid` แทน userId parameter
+- อย่า expose sensitive data ใน client-side code
+
+### Performance
+- ใช้ Promise.all() สำหรับ parallel operations
+- Upload images ใน Cloud Functions แทน client-side
+- ใช้ proper caching strategies
+
+### Testing
+- ทดสอบด้วย Firebase Emulator ก่อน deploy
+- ตรวจสอบ linting errors ก่อน commit
+- ตรวจสอบ CSP และ CORS settings
+
+## 📝 Checklist Before Deploy
+
+- [ ] ตรวจสอบ linting errors: `npm run lint`
+- [ ] ตรวจสอบ function names ใช้ snake_case
+- [ ] ตรวจสอบ CSP configuration
+- [ ] ตรวจสอบ authentication checks
+- [ ] ตรวจสอบ error handling ใช้ HttpsError
+- [ ] ตรวจสอบ environment variables
+- [ ] ตรวจสอบ region configuration
+- [ ] ทดสอบด้วย Firebase Emulator
+- [ ] ตรวจสอบ unused imports/interfaces
+
+## 🚨 Common Deployment Errors
+
+1. **"Could not create Cloud Run service"** → ตรวจสอบ function name ใช้ snake_case
+2. **"CORS error"** → ตรวจสอบใช้ HttpsError และ CSP configuration
+3. **"401 Unauthorized"** → ตรวจสอบ authentication และ API keys
+4. **"Function not found"** → ตรวจสอบ function name และ deployment status
+5. **"Permission denied"** → ตรวจสอบ Firebase CLI login และ project selection
+

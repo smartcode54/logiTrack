@@ -1,7 +1,7 @@
 "use client";
 
+import type { Job } from "@/types";
 import { MapPin } from "lucide-react";
-import { Job } from "@/types";
 
 interface JobCardProps {
   job: Job;
@@ -10,12 +10,7 @@ interface JobCardProps {
   disabled?: boolean;
 }
 
-export const JobCard = ({
-  job,
-  onStartJob,
-  isStarting = false,
-  disabled = false,
-}: JobCardProps) => {
+export const JobCard = ({ job, onStartJob, isStarting = false, disabled = false }: JobCardProps) => {
   const isButtonDisabled = disabled || isStarting;
 
   return (
@@ -23,9 +18,7 @@ export const JobCard = ({
       <div className="flex justify-between items-start mb-4">
         <span
           className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
-            job.type === "LH"
-              ? "bg-orange-100 text-orange-700"
-              : "bg-karabao/10 text-karabao"
+            job.type === "LH" ? "bg-orange-100 text-orange-700" : "bg-karabao/10 text-karabao"
           }`}
         >
           {job.type}
@@ -35,7 +28,7 @@ export const JobCard = ({
       <h3 className="font-bold text-gray-800 text-xl mb-3">{job.route}</h3>
       <div className="space-y-2 mb-5">
         <p className="text-xs text-gray-500 flex items-center gap-2 font-bold">
-          <MapPin size={14} className="text-red-500" /> {job.pickup}
+          <MapPin size={14} className="text-green-500" /> {job.pickup}
         </p>
       </div>
       <button
@@ -44,7 +37,7 @@ export const JobCard = ({
         className={`w-full text-white font-black py-4 rounded-xl shadow-lg border-b-4 transition-all uppercase tracking-wide flex items-center justify-center gap-2 ${
           isButtonDisabled
             ? "bg-gray-400 border-gray-500 cursor-not-allowed opacity-70"
-            : "bg-blue-600 border-blue-800 active:translate-y-1 hover:bg-blue-700"
+            : "bg-green-600 border-green-800 active:translate-y-1 hover:bg-green-700"
         }`}
       >
         {isStarting ? (
@@ -61,4 +54,3 @@ export const JobCard = ({
     </div>
   );
 };
-

@@ -18,6 +18,22 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+// Validate Firebase configuration
+if (typeof window !== "undefined") {
+  const requiredFields = ["apiKey", "authDomain", "projectId", "storageBucket", "messagingSenderId", "appId"];
+  const missingFields = requiredFields.filter((field) => !firebaseConfig[field as keyof typeof firebaseConfig]);
+  
+  if (missingFields.length > 0) {
+    console.error("Firebase Configuration Error: Missing required fields:", missingFields);
+    console.error("Please check your .env.local file and ensure all NEXT_PUBLIC_FIREBASE_* variables are set");
+  }
+
+  // Validate API key format
+  if (firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("AIza")) {
+    // Silent validation - no console logs
+  }
+}
+
 // Initialize Firebase
 let app: FirebaseApp;
 let auth: Auth;
@@ -38,7 +54,8 @@ if (typeof window !== "undefined") {
   auth = getAuth(app);
   db = getFirestore(app);
   storage = getStorage(app);
-  functions = getFunctions(app);
+  // Initialize Functions with region to match backend functions (asia-southeast1)
+  functions = getFunctions(app, "asia-southeast1");
   
   // Initialize Analytics (only in browser environment)
   // Analytics will be initialized asynchronously if supported

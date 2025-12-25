@@ -63,17 +63,13 @@ export const IncidentSelection = ({
             onChange={(e) => handleCheckboxChange(e.target.checked)}
             className="w-5 h-5 rounded border-2 border-gray-300 text-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 cursor-pointer"
           />
-          <span className="text-sm font-black text-gray-800">
-            มีเหตุการณ์ระหว่างเดินทาง
-          </span>
+          <span className="text-sm font-black text-gray-800">มีเหตุการณ์ระหว่างเดินทาง</span>
         </label>
 
         {/* Dropdown สำหรับเลือกประเภทเหตุการณ์ */}
         {isDelayed && (
           <div className="space-y-2 animate-fadeIn">
-            <label className="block text-sm font-bold text-gray-700">
-              เลือกประเภทเหตุการณ์:
-            </label>
+            <label className="block text-sm font-bold text-gray-700">เลือกประเภทเหตุการณ์:</label>
             <div className="relative">
               <select
                 value={incidentType}
@@ -86,18 +82,13 @@ export const IncidentSelection = ({
                   </option>
                 ))}
               </select>
-              <ChevronDown
-                size={20}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-              />
+              <ChevronDown size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
             </div>
 
             {/* Input box เมื่อเลือก "อื่นๆ" */}
             {incidentType === "other" && (
               <div className="space-y-2 animate-fadeIn">
-                <label className="block text-sm font-bold text-gray-700">
-                  กรุณาระบุเหตุการณ์:
-                </label>
+                <label className="block text-sm font-bold text-gray-700">กรุณาระบุเหตุการณ์:</label>
                 <input
                   type="text"
                   value={incidentOtherDescription}
@@ -108,13 +99,10 @@ export const IncidentSelection = ({
               </div>
             )}
 
-            <p className="text-[10px] text-gray-500">
-              กรุณาบันทึกภาพเหตุการณ์ 4 ภาพ หลังจากเลือกเหตุการณ์
-            </p>
+            <p className="text-[10px] text-gray-500">กรุณาบันทึกภาพเหตุการณ์ 4 ภาพ หลังจากเลือกเหตุการณ์</p>
           </div>
         )}
       </div>
     </div>
   );
 };
-

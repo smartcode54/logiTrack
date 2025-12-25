@@ -4,4 +4,3 @@ export { DepartureStatus } from "./DepartureStatus";
 export { ArrivalStatus } from "./ArrivalStatus";
 export { DeliveryPhotoUpload } from "./DeliveryPhotoUpload";
 export { ConfirmedOverlay } from "./ConfirmedOverlay";
-

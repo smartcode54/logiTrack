@@ -90,6 +90,20 @@ Firebase App Check ช่วยป้องกันการใช้งาน 
 
 ⚠️ **สำคัญ**: เริ่มต้นด้วย **Testing Mode** เพื่อทดสอบก่อน แล้วค่อยเปลี่ยนเป็น **Enforced Mode** เมื่อพร้อม
 
+5. **เพิ่ม Debug Token (สำหรับ Development)**:
+   - เมื่อใช้ App Check ใน development mode จะเห็นข้อความ:
+     ```
+     App Check debug token: [your-token-here]
+     You will need to add it to your app's App Check settings in the Firebase console for it to work.
+     ```
+   - คัดลอก debug token จาก console
+   - ไปที่ **Build** > **App Check** > **Apps** tab
+   - คลิกที่ Web App ของคุณ
+   - ไปที่ **Debug tokens** section
+   - คลิก **Add debug token** และวาง token ที่คัดลอกมา
+   - คลิก **Save**
+   - Refresh หน้าเว็บ - ข้อความแจ้งเตือนจะหายไป
+
 ## การใช้งาน
 
 ### Automatic Initialization

@@ -1,21 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import React from "react";
-import {
-  FileText,
-  Camera,
-  CheckCircle,
-  Hash,
-  Scan,
-  Trash2,
-  Image as ImageIcon,
-} from "lucide-react";
 import { CameraCapture } from "@/components/camera/CameraCapture";
 import { ImageViewer } from "@/components/common/ImageViewer";
+import type { GeoapifySearchResult, PickupPhotos, Timestamp } from "@/types";
 import { createTimestamp } from "@/utils/dateTime";
-import { PickupPhotos, Timestamp, GeoapifySearchResult } from "@/types";
+import { Camera, CheckCircle, FileText, Hash, Image as ImageIcon, Scan, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import type React from "react";
 
 interface PickupPhotoUploadProps {
   pickupPhotos: PickupPhotos;
@@ -82,32 +74,23 @@ export const PickupPhotoUpload = ({
   ];
 
   if (confirmedTime) {
-    const allPhotos = photoTypes
-      .map((type) => pickupPhotos[type.key as keyof PickupPhotos])
-      .filter((photo): photo is string => photo !== null);
+    const allPhotos = photoTypes.map((type) => pickupPhotos[type.key as keyof PickupPhotos]).filter((photo): photo is string => photo !== null);
 
-    const capturedPhotoTypes = photoTypes
-      .filter((type) => pickupPhotos[type.key as keyof PickupPhotos] !== null)
-      .map((type) => type.label);
+    const capturedPhotoTypes = photoTypes.filter((type) => pickupPhotos[type.key as keyof PickupPhotos] !== null).map((type) => type.label);
 
     return (
       <>
         {viewingImage !== null && (
           <ImageViewer
             imageSrc={allPhotos.length > 1 ? allPhotos : allPhotos[0] || ""}
-            initialIndex={
-              allPhotos.length > 1
-                ? allPhotos.findIndex((photo) => photo === viewingImage)
-                : 0
-            }
+            initialIndex={allPhotos.length > 1 ? allPhotos.findIndex((photo) => photo === viewingImage) : 0}
             onClose={() => setViewingImage(null)}
             alt="Pickup photo"
           />
         )}
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4 animate-fadeIn">
           <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
-            <FileText size={18} className="text-blue-600" /> ข้อมูลการรับสินค้า
-            (4 ภาพ)
+            <FileText size={18} className="text-green-600" /> ข้อมูลการรับสินค้า (4 ภาพ)
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {photoTypes.map((type) => {
@@ -115,9 +98,7 @@ export const PickupPhotoUpload = ({
               return (
                 <div
                   key={type.key}
-                  className={`relative aspect-square rounded-xl border-2 border-karabao bg-gray-900 overflow-hidden ${
-                    photo ? "cursor-pointer" : ""
-                  }`}
+                  className={`relative aspect-square rounded-xl border-2 border-karabao bg-gray-900 overflow-hidden ${photo ? "cursor-pointer" : ""}`}
                   onClick={() => {
                     if (photo) {
                       setViewingImage(photo);
@@ -126,18 +107,12 @@ export const PickupPhotoUpload = ({
                 >
                   {photo ? (
                     <>
-                      <img
-                        src={photo}
-                        alt={type.label}
-                        className="w-full h-full object-cover pointer-events-none"
-                      />
+                      <img src={photo} alt={type.label} className="w-full h-full object-cover pointer-events-none" />
                       <div className="absolute top-1 right-1 bg-karabao rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
                       <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
-                        <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">
-                          คลิกดู
-                        </span>
+                        <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">คลิกดู</span>
                       </div>
                     </>
                   ) : (
@@ -151,23 +126,18 @@ export const PickupPhotoUpload = ({
           </div>
           <div className="bg-gray-900 rounded-xl p-3 text-[10px] text-white space-y-1">
             <div className="flex justify-between border-b border-white/20 pb-1.5 mb-1 font-black">
-              <span className="text-karabao-light tracking-tight uppercase text-[9px]">
-                {`บันทึกรับสินค้าสำเร็จ: ${capturedPhotoTypes.join(", ")}`}
-              </span>
+              <span className="text-karabao-light tracking-tight uppercase text-[9px]">{`บันทึกรับสินค้าสำเร็จ: ${capturedPhotoTypes.join(", ")}`}</span>
             </div>
             {currentAddress?.address && (
               <p className="opacity-90 text-[8px] leading-tight mb-1">
-                {currentAddress.address.address_line1 &&
-                currentAddress.address.address_line2
+                {currentAddress.address.address_line1 && currentAddress.address.address_line2
                   ? `${currentAddress.address.address_line1}, ${currentAddress.address.address_line2}`
                   : currentAddress.address.formatted || "ไม่พบข้อมูลที่อยู่"}
-                {currentAddress.address.latitude &&
-                  currentAddress.address.longitude && (
-                    <span className="block mt-0.5 opacity-75">
-                      📍 {currentAddress.address.latitude.toFixed(6)},{" "}
-                      {currentAddress.address.longitude.toFixed(6)}
-                    </span>
-                  )}
+                {currentAddress.address.latitude && currentAddress.address.longitude && (
+                  <span className="block mt-0.5 opacity-75">
+                    📍 {currentAddress.address.latitude.toFixed(6)}, {currentAddress.address.longitude.toFixed(6)}
+                  </span>
+                )}
               </p>
             )}
             {confirmedTime && (
@@ -183,22 +153,14 @@ export const PickupPhotoUpload = ({
 
   return (
     <>
-      <input
-        type="file"
-        ref={fileInputRef}
-        accept="image/*"
-        onChange={handleFileSelect}
-        className="hidden"
-      />
+      <input type="file" ref={fileInputRef} accept="image/*" onChange={handleFileSelect} className="hidden" />
       {showRunSheetOptions && (
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-xs w-full space-y-3">
-            <h3 className="text-sm font-black text-gray-800 uppercase text-center mb-4">
-              เลือกวิธีเพิ่มรูป Run Sheet
-            </h3>
+            <h3 className="text-sm font-black text-gray-800 uppercase text-center mb-4">เลือกวิธีเพิ่มรูป Run Sheet</h3>
             <button
               onClick={handleRunSheetCamera}
-              className="w-full flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
+              className="w-full flex items-center justify-center gap-3 p-4 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
             >
               <Camera size={20} />
               ถ่ายรูป
@@ -237,18 +199,12 @@ export const PickupPhotoUpload = ({
       )}
       {viewingImage !== null &&
         (() => {
-          const allPhotos = photoTypes
-            .map((type) => pickupPhotos[type.key as keyof PickupPhotos])
-            .filter((photo): photo is string => photo !== null);
+          const allPhotos = photoTypes.map((type) => pickupPhotos[type.key as keyof PickupPhotos]).filter((photo): photo is string => photo !== null);
 
           return (
             <ImageViewer
               imageSrc={allPhotos.length > 1 ? allPhotos : allPhotos[0] || ""}
-              initialIndex={
-                allPhotos.length > 1
-                  ? allPhotos.findIndex((photo) => photo === viewingImage)
-                  : 0
-              }
+              initialIndex={allPhotos.length > 1 ? allPhotos.findIndex((photo) => photo === viewingImage) : 0}
               onClose={() => setViewingImage(null)}
               alt="Pickup photo"
             />
@@ -256,13 +212,11 @@ export const PickupPhotoUpload = ({
         })()}
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4 animate-fadeIn">
         <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
-          <FileText size={18} className="text-blue-600" /> ข้อมูลการรับสินค้า (4
-          ภาพ)
+          <FileText size={18} className="text-green-600" /> ข้อมูลการรับสินค้า (4 ภาพ)
         </h3>
         <div className="grid grid-cols-2 gap-3">
           {photoTypes.map((type) => {
-            const hasPhoto =
-              pickupPhotos[type.key as keyof PickupPhotos] !== null;
+            const hasPhoto = pickupPhotos[type.key as keyof PickupPhotos] !== null;
             const photo = pickupPhotos[type.key as keyof PickupPhotos];
 
             return (
@@ -276,18 +230,12 @@ export const PickupPhotoUpload = ({
                     }
                   }}
                   className={`relative w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden aspect-square ${
-                    hasPhoto
-                      ? "border-karabao bg-karabao/10"
-                      : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
+                    hasPhoto ? "border-karabao bg-karabao/10" : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
                   }`}
                 >
                   {photo ? (
                     <>
-                      <img
-                        src={photo}
-                        alt={type.label}
-                        className="w-full h-full object-cover pointer-events-none"
-                      />
+                      <img src={photo} alt={type.label} className="w-full h-full object-cover pointer-events-none" />
                       <div className="absolute top-1 right-1 bg-karabao rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
@@ -298,17 +246,13 @@ export const PickupPhotoUpload = ({
                           setViewingImage(photo);
                         }}
                       >
-                        <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">
-                          คลิกดู
-                        </span>
+                        <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">คลิกดู</span>
                       </div>
                     </>
                   ) : (
                     <>
                       <Camera size={24} className="mb-1 opacity-50" />
-                      <span className="text-[9px] font-black uppercase text-center leading-tight px-1">
-                        {type.label}
-                      </span>
+                      <span className="text-[9px] font-black uppercase text-center leading-tight px-1">{type.label}</span>
                     </>
                   )}
                 </button>
@@ -319,7 +263,7 @@ export const PickupPhotoUpload = ({
                         e.stopPropagation();
                         setViewingImage(photo);
                       }}
-                      className="flex-1 text-[8px] text-blue-600 font-black uppercase border border-blue-600 bg-white py-1 rounded-md hover:bg-blue-50 transition-colors"
+                      className="flex-1 text-[8px] text-green-600 font-black uppercase border border-green-600 bg-white py-1 rounded-md hover:bg-green-50 transition-colors"
                     >
                       ดู
                     </button>
@@ -344,7 +288,7 @@ export const PickupPhotoUpload = ({
                           [type.key]: null,
                         });
                       }}
-                      className="px-2 text-[8px] text-red-600 font-black uppercase border border-red-600 bg-white py-1 rounded-md hover:bg-red-50 transition-colors flex items-center justify-center"
+                      className="px-2 text-[8px] text-orange-600 font-black uppercase border border-orange-600 bg-white py-1 rounded-md hover:bg-orange-50 transition-colors flex items-center justify-center"
                     >
                       <Trash2 size={10} />
                     </button>
@@ -354,15 +298,9 @@ export const PickupPhotoUpload = ({
             );
           })}
         </div>
-        <div
-          className={`space-y-2 pt-2 transition-all duration-300 ${
-            pickupPhotos.runSheet
-              ? "opacity-100"
-              : "opacity-30 pointer-events-none"
-          }`}
-        >
+        <div className={`space-y-2 pt-2 transition-all duration-300 ${pickupPhotos.runSheet ? "opacity-100" : "opacity-30 pointer-events-none"}`}>
           <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1">
-            <Hash size={12} className="text-blue-500" /> หมายเลข Run Sheet
+            <Hash size={12} className="text-green-500" /> หมายเลข Run Sheet
           </label>
           <div className="relative">
             <input
@@ -370,11 +308,11 @@ export const PickupPhotoUpload = ({
               placeholder="แสกนหรือกรอกรหัส..."
               value={runSheetNumber}
               onChange={(e) => setRunSheetNumber(e.target.value)}
-              className="w-full p-4 pr-14 bg-gray-50 border-2 border-gray-100 rounded-xl font-black text-blue-600 placeholder:text-gray-300 focus:border-blue-500 focus:bg-white transition-all outline-none"
+              className="w-full p-4 pr-14 bg-gray-50 border-2 border-gray-100 rounded-xl font-black text-green-600 placeholder:text-gray-300 focus:border-green-500 focus:bg-white transition-all outline-none"
             />
             <button
               onClick={startScanning}
-              className="absolute right-2 top-2 bottom-2 aspect-square bg-blue-600 text-white rounded-lg flex items-center justify-center active:scale-90 transition-transform shadow-lg shadow-blue-100"
+              className="absolute right-2 top-2 bottom-2 aspect-square bg-green-600 text-white rounded-lg flex items-center justify-center active:scale-90 transition-transform shadow-lg shadow-green-100"
               title="สแกน QR Code"
             >
               <Scan size={20} />

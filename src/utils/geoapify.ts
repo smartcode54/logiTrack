@@ -1,4 +1,4 @@
-import { GeoapifySearchResult, GeoapifyAddress } from "@/types";
+import type { GeoapifyAddress, GeoapifySearchResult } from "@/types";
 import { getStoredCoordinate } from "./coordinates";
 
 /**
@@ -19,9 +19,7 @@ const getApiKey = (): string => {
   const apiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY;
 
   if (!apiKey || apiKey.trim().length === 0) {
-    throw new Error(
-      "Geoapify API key is missing. Please add NEXT_PUBLIC_GEOAPIFY_API_KEY to your .env.local file."
-    );
+    throw new Error("Geoapify API key is missing. Please add NEXT_PUBLIC_GEOAPIFY_API_KEY to your .env.local file.");
   }
 
   return apiKey;
@@ -80,15 +78,11 @@ export const reverseGeocode = async (
   }
 
   if (latitude < -90 || latitude > 90) {
-    throw new Error(
-      `Latitude out of range: ${latitude}. Must be between -90 and 90.`
-    );
+    throw new Error(`Latitude out of range: ${latitude}. Must be between -90 and 90.`);
   }
 
   if (longitude < -180 || longitude > 180) {
-    throw new Error(
-      `Longitude out of range: ${longitude}. Must be between -180 and 180.`
-    );
+    throw new Error(`Longitude out of range: ${longitude}. Must be between -180 and 180.`);
   }
 
   const apiKey = getApiKey();
@@ -119,9 +113,7 @@ export const reverseGeocode = async (
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
-        `Geoapify API error: ${response.status} ${response.statusText}\n${errorText}`
-      );
+      throw new Error(`Geoapify API error: ${response.status} ${response.statusText}\n${errorText}`);
     }
 
     const data = await response.json();
@@ -169,9 +161,7 @@ export const reverseGeocode = async (
 
     console.log("✅ Reverse Geocoding Result:");
     console.log(`  Address: ${searchResult.address.formatted}`);
-    console.log(
-      `  Lat: ${searchResult.address.latitude}, Lng: ${searchResult.address.longitude}`
-    );
+    console.log(`  Lat: ${searchResult.address.latitude}, Lng: ${searchResult.address.longitude}`);
     console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
     return searchResult;
@@ -186,26 +176,25 @@ export const reverseGeocode = async (
  * ใช้ reverse geocoding endpoint: /geocode/reverse?lat={lat}&lon={lon}&format=json&apiKey={apiKey}
  * @returns Promise<GeoapifySearchResult | null>
  */
-export const getAddressFromCoordinate =
-  async (): Promise<GeoapifySearchResult | null> => {
-    const coordinate = getStoredCoordinate();
+export const getAddressFromCoordinate = async (): Promise<GeoapifySearchResult | null> => {
+  const coordinate = getStoredCoordinate();
 
-    if (!coordinate) {
-      console.warn("⚠️ ไม่มี coordinate ที่เก็บไว้ กรุณาดึงพิกัดก่อน");
-      return null;
-    }
+  if (!coordinate) {
+    console.warn("⚠️ ไม่มี coordinate ที่เก็บไว้ กรุณาดึงพิกัดก่อน");
+    return null;
+  }
 
-    // ดึง lat, lng จาก coordinates.ts
-    const lat = coordinate.latitude;
-    const lon = coordinate.longitude;
+  // ดึง lat, lng จาก coordinates.ts
+  const lat = coordinate.latitude;
+  const lon = coordinate.longitude;
 
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-    console.log("📍 ใช้ coordinate ที่เก็บไว้จาก coordinates.ts:");
-    console.log(`  Lat: ${lat}, Lon: ${lon}`);
-    console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("📍 ใช้ coordinate ที่เก็บไว้จาก coordinates.ts:");
+  console.log(`  Lat: ${lat}, Lon: ${lon}`);
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-    // เรียก reverse geocoding endpoint ด้วย lat, lon จาก coordinates.ts
-    return reverseGeocode(lat, lon, {
-      lang: "th", // ภาษาไทย
-    });
-  };
+  // เรียก reverse geocoding endpoint ด้วย lat, lon จาก coordinates.ts
+  return reverseGeocode(lat, lon, {
+    lang: "th", // ภาษาไทย
+  });
+};

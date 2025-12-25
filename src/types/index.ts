@@ -35,7 +35,6 @@ export interface GeoapifySearchResult {
   match_type?: string;
 }
 
-
 export interface Job {
   id: string;
   type: "LH" | "FM";
@@ -59,6 +58,11 @@ export interface DeliveredJob {
   incidentType?: string;
   incidentTime?: string;
   incidentAddress?: string;
+}
+
+export interface CheckInPhotos {
+  truckAndLicense: string | null; // รูปถ่ายหน้ารถและทะเบียน
+  customerCheckIn: string | null; // รูปถ่าย check-in กับพนักงานลูกค้า
 }
 
 export interface PickupPhotos {
@@ -106,3 +110,8 @@ export interface Expense {
   receiptImages?: string[]; // รูปภาพใบเสร็จสำหรับ maintenance (4 ภาพ) และ other (1 ภาพ)
 }
 
+// Export workflow types
+export * from "./workflow";
+
+// Export admin types
+export * from "./admin";

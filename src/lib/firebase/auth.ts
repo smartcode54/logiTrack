@@ -21,6 +21,11 @@ import { auth } from "./config";
 // Sign in with email and password
 export const signIn = async (email: string, password: string) => {
   try {
+    // Validate auth is initialized
+    if (!auth || (typeof auth === "object" && Object.keys(auth).length === 0)) {
+      return { user: null, error: "Firebase Authentication ยังไม่ได้ initialize กรุณาตรวจสอบ configuration" };
+    }
+
     const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
@@ -28,7 +33,19 @@ export const signIn = async (email: string, password: string) => {
     );
     return { user: userCredential.user, error: null };
   } catch (error: any) {
-    return { user: null, error: error.message };
+    // Handle 400 Bad Request from Identity Toolkit API
+    if (error.message?.includes("400") || error.message?.includes("Bad Request")) {
+      console.error("Firebase API Error (400 Bad Request):", {
+        code: error.code,
+        message: error.message,
+        apiKey: auth.app?.options?.apiKey?.substring(0, 10) + "...",
+      });
+      return {
+        user: null,
+        error: "API Key หรือ Firebase configuration ไม่ถูกต้อง กรุณาตรวจสอบ .env.local และ restart dev server",
+      };
+    }
+    return { user: null, error: error.message || "เกิดข้อผิดพลาดในการเข้าสู่ระบบ" };
   }
 };
 
@@ -59,11 +76,71 @@ export const signUp = async (
 // Sign in with Google
 export const signInWithGoogle = async () => {
   try {
+    // Check if auth is properly initialized
+    if (typeof window === "undefined") {
+      return { user: null, error: "Firebase Authentication ต้องทำงานบน client-side เท่านั้น" };
+    }
+    
+    if (!auth || (typeof auth === "object" && Object.keys(auth).length === 0)) {
+      return { user: null, error: "Firebase Authentication ยังไม่ได้ initialize กรุณาตรวจสอบ configuration" };
+    }
+
+    // Validate auth domain
+    if (!auth.app?.options?.authDomain) {
+      return { user: null, error: "Firebase authDomain ไม่ถูกต้อง กรุณาตรวจสอบ configuration" };
+    }
+
     const provider = new GoogleAuthProvider();
+    // Add custom parameters for better UX
+    provider.setCustomParameters({
+      prompt: "select_account",
+    });
+    
+    // Use popup for Google sign in
     const userCredential = await signInWithPopup(auth, provider);
     return { user: userCredential.user, error: null };
   } catch (error: any) {
-    return { user: null, error: error.message };
+    // Handle specific error cases
+    if (error.code === "auth/popup-closed-by-user" || error.code === "auth/cancelled-popup-request") {
+      // User closed the popup - don't treat as error
+      return { user: null, error: null };
+    }
+    if (error.code === "auth/popup-blocked") {
+      return { user: null, error: "กรุณาอนุญาต popup ใน browser เพื่อเข้าสู่ระบบด้วย Google" };
+    }
+    if (error.code === "auth/configuration-not-found") {
+      return { user: null, error: "Firebase configuration ไม่ถูกต้อง กรุณาตรวจสอบ .env.local และ restart dev server" };
+    }
+    if (error.code === "auth/invalid-api-key" || error.code === "auth/api-key-not-valid.-please-pass-a-valid-api-key") {
+      return { user: null, error: "API Key ไม่ถูกต้อง กรุณาตรวจสอบ Firebase configuration" };
+    }
+    if (error.code === "auth/operation-not-allowed") {
+      return { user: null, error: "Google Sign-In ยังไม่ได้เปิดใช้งานใน Firebase Console" };
+    }
+    if (error.code === "auth/unauthorized-domain") {
+      return { user: null, error: "Domain นี้ยังไม่ได้อนุญาตใน Firebase Console" };
+    }
+    // Handle 400 Bad Request from Identity Toolkit API
+    if (error.message?.includes("400") || error.message?.includes("Bad Request")) {
+      console.error("Firebase API Error (400 Bad Request):", {
+        code: error.code,
+        message: error.message,
+        apiKey: auth.app?.options?.apiKey?.substring(0, 10) + "...",
+        authDomain: auth.app?.options?.authDomain,
+      });
+      return {
+        user: null,
+        error: "API Key หรือ Firebase configuration ไม่ถูกต้อง กรุณาตรวจสอบ:\n1. API Key ใน .env.local\n2. เปิดใช้งาน Identity Toolkit API ใน Google Cloud Console\n3. Domain อนุญาตใน Firebase Console",
+      };
+    }
+    // Log full error for debugging
+    console.error("Google Sign-In Error:", {
+      code: error.code,
+      message: error.message,
+      stack: error.stack,
+      apiKey: auth.app?.options?.apiKey?.substring(0, 10) + "...",
+    });
+    return { user: null, error: error.message || "เกิดข้อผิดพลาดในการเข้าสู่ระบบด้วย Google" };
   }
 };
 

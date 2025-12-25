@@ -7,4 +7,3 @@ export const INCIDENT_OPTIONS = [
   { value: "road", label: "ปัญหาถนน / สภาพถนน" },
   { value: "other", label: "อื่นๆ" },
 ] as const;
-

@@ -1,17 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import React from "react";
-import {
-  AlertTriangle,
-  Camera,
-  CheckCircle,
-  Trash2,
-} from "lucide-react";
 import { CameraCapture } from "@/components/camera/CameraCapture";
 import { ImageViewer } from "@/components/common/ImageViewer";
+import type { GeoapifySearchResult, IncidentPhotos, Timestamp } from "@/types";
 import { createTimestamp } from "@/utils/dateTime";
-import { IncidentPhotos, Timestamp, GeoapifySearchResult } from "@/types";
+import { AlertTriangle, Camera, CheckCircle, Trash2 } from "lucide-react";
+import { useState } from "react";
+import React from "react";
 
 interface IncidentPhotoUploadProps {
   incidentPhotos: IncidentPhotos;
@@ -20,12 +15,7 @@ interface IncidentPhotoUploadProps {
   currentAddress?: GeoapifySearchResult | null;
 }
 
-export const IncidentPhotoUpload = ({
-  incidentPhotos,
-  setIncidentPhotos,
-  confirmedTime,
-  currentAddress,
-}: IncidentPhotoUploadProps) => {
+export const IncidentPhotoUpload = ({ incidentPhotos, setIncidentPhotos, confirmedTime, currentAddress }: IncidentPhotoUploadProps) => {
   const [activeCamera, setActiveCamera] = useState<string | null>(null);
   const [viewingImage, setViewingImage] = useState<string | null>(null);
 
@@ -41,28 +31,21 @@ export const IncidentPhotoUpload = ({
   };
 
   if (confirmedTime) {
-    const allPhotos = photoTypes
-      .map((type) => incidentPhotos[type.key as keyof IncidentPhotos])
-      .filter((photo): photo is string => photo !== null);
+    const allPhotos = photoTypes.map((type) => incidentPhotos[type.key as keyof IncidentPhotos]).filter((photo): photo is string => photo !== null);
 
     return (
       <>
         {viewingImage !== null && (
           <ImageViewer
             imageSrc={allPhotos.length > 1 ? allPhotos : allPhotos[0] || ""}
-            initialIndex={
-              allPhotos.length > 1
-                ? allPhotos.findIndex((photo) => photo === viewingImage)
-                : 0
-            }
+            initialIndex={allPhotos.length > 1 ? allPhotos.findIndex((photo) => photo === viewingImage) : 0}
             onClose={() => setViewingImage(null)}
             alt="Incident photo"
           />
         )}
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4 animate-fadeIn">
           <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
-            <AlertTriangle size={18} className="text-orange-600" /> ภาพเหตุการณ์ระหว่างเดินทาง
-            (4 ภาพ)
+            <AlertTriangle size={18} className="text-orange-600" /> ภาพเหตุการณ์ระหว่างเดินทาง (4 ภาพ)
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {photoTypes.map((type) => {
@@ -81,18 +64,12 @@ export const IncidentPhotoUpload = ({
                 >
                   {photo ? (
                     <>
-                      <img
-                        src={photo}
-                        alt={type.label}
-                        className="w-full h-full object-cover pointer-events-none"
-                      />
+                      <img src={photo} alt={type.label} className="w-full h-full object-cover pointer-events-none" />
                       <div className="absolute top-1 right-1 bg-orange-500 rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
                       <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
-                        <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">
-                          คลิกดู
-                        </span>
+                        <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">คลิกดู</span>
                       </div>
                     </>
                   ) : (
@@ -106,23 +83,18 @@ export const IncidentPhotoUpload = ({
           </div>
           <div className="bg-gray-900 rounded-xl p-3 text-[10px] text-white space-y-1">
             <div className="flex justify-between border-b border-white/20 pb-1.5 mb-1 font-black">
-              <span className="text-orange-400 tracking-tight uppercase text-[9px]">
-                บันทึกภาพเหตุการณ์ระหว่างเดินทาง
-              </span>
+              <span className="text-orange-400 tracking-tight uppercase text-[9px]">บันทึกภาพเหตุการณ์ระหว่างเดินทาง</span>
             </div>
             {currentAddress?.address && (
               <p className="opacity-90 text-[8px] leading-tight mb-1">
-                {currentAddress.address.address_line1 &&
-                currentAddress.address.address_line2
+                {currentAddress.address.address_line1 && currentAddress.address.address_line2
                   ? `${currentAddress.address.address_line1}, ${currentAddress.address.address_line2}`
                   : currentAddress.address.formatted || "ไม่พบข้อมูลที่อยู่"}
-                {currentAddress.address.latitude &&
-                  currentAddress.address.longitude && (
-                    <span className="block mt-0.5 opacity-75">
-                      📍 {currentAddress.address.latitude.toFixed(6)},{" "}
-                      {currentAddress.address.longitude.toFixed(6)}
-                    </span>
-                  )}
+                {currentAddress.address.latitude && currentAddress.address.longitude && (
+                  <span className="block mt-0.5 opacity-75">
+                    📍 {currentAddress.address.latitude.toFixed(6)}, {currentAddress.address.longitude.toFixed(6)}
+                  </span>
+                )}
               </p>
             )}
             {confirmedTime && (
@@ -163,11 +135,7 @@ export const IncidentPhotoUpload = ({
           return (
             <ImageViewer
               imageSrc={allPhotos.length > 1 ? allPhotos : allPhotos[0] || ""}
-              initialIndex={
-                allPhotos.length > 1
-                  ? allPhotos.findIndex((photo) => photo === viewingImage)
-                  : 0
-              }
+              initialIndex={allPhotos.length > 1 ? allPhotos.findIndex((photo) => photo === viewingImage) : 0}
               onClose={() => setViewingImage(null)}
               alt="Incident photo"
             />
@@ -175,13 +143,11 @@ export const IncidentPhotoUpload = ({
         })()}
       <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-4 animate-fadeIn">
         <h3 className="text-sm font-black text-gray-800 uppercase tracking-wider flex items-center gap-2">
-          <AlertTriangle size={18} className="text-orange-600" /> ภาพเหตุการณ์ระหว่างเดินทาง
-          (4 ภาพ)
+          <AlertTriangle size={18} className="text-orange-600" /> ภาพเหตุการณ์ระหว่างเดินทาง (4 ภาพ)
         </h3>
         <div className="grid grid-cols-2 gap-3">
           {photoTypes.map((type) => {
-            const hasPhoto =
-              incidentPhotos[type.key as keyof IncidentPhotos] !== null;
+            const hasPhoto = incidentPhotos[type.key as keyof IncidentPhotos] !== null;
             const photo = incidentPhotos[type.key as keyof IncidentPhotos];
 
             return (
@@ -189,18 +155,12 @@ export const IncidentPhotoUpload = ({
                 <button
                   onClick={() => handlePhotoClick(type.key)}
                   className={`relative w-full rounded-xl border-2 border-dashed flex flex-col items-center justify-center transition-all overflow-hidden aspect-square ${
-                    hasPhoto
-                      ? "border-orange-500 bg-orange-50"
-                      : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
+                    hasPhoto ? "border-orange-500 bg-orange-50" : "border-gray-200 bg-gray-50 text-gray-400 active:bg-gray-100"
                   }`}
                 >
                   {photo ? (
                     <>
-                      <img
-                        src={photo}
-                        alt={type.label}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={photo} alt={type.label} className="w-full h-full object-cover" />
                       <div className="absolute top-1 right-1 bg-orange-500 rounded-full p-1">
                         <CheckCircle size={16} className="text-white" />
                       </div>
@@ -211,17 +171,13 @@ export const IncidentPhotoUpload = ({
                           setViewingImage(photo);
                         }}
                       >
-                        <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">
-                          คลิกดู
-                        </span>
+                        <span className="text-white text-[8px] font-black uppercase opacity-0 hover:opacity-100 transition-opacity">คลิกดู</span>
                       </div>
                     </>
                   ) : (
                     <>
                       <Camera size={24} className="mb-1 opacity-50" />
-                      <span className="text-[9px] font-black uppercase text-center leading-tight px-1">
-                        {type.label}
-                      </span>
+                      <span className="text-[9px] font-black uppercase text-center leading-tight px-1">{type.label}</span>
                     </>
                   )}
                 </button>
@@ -232,7 +188,7 @@ export const IncidentPhotoUpload = ({
                         e.stopPropagation();
                         setViewingImage(photo);
                       }}
-                      className="flex-1 text-[8px] text-blue-600 font-black uppercase border border-blue-600 bg-white py-1 rounded-md hover:bg-blue-50 transition-colors"
+                      className="flex-1 text-[8px] text-green-600 font-black uppercase border border-green-600 bg-white py-1 rounded-md hover:bg-green-50 transition-colors"
                     >
                       ดู
                     </button>
@@ -253,7 +209,7 @@ export const IncidentPhotoUpload = ({
                           [type.key]: null,
                         });
                       }}
-                      className="px-2 text-[8px] text-red-600 font-black uppercase border border-red-600 bg-white py-1 rounded-md hover:bg-red-50 transition-colors flex items-center justify-center"
+                      className="px-2 text-[8px] text-orange-600 font-black uppercase border border-orange-600 bg-white py-1 rounded-md hover:bg-orange-50 transition-colors flex items-center justify-center"
                     >
                       <Trash2 size={10} />
                     </button>
@@ -267,4 +223,3 @@ export const IncidentPhotoUpload = ({
     </>
   );
 };
-

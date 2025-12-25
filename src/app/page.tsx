@@ -1,27 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import type { DeliveredJob } from "@/types";
 import { startScanning } from "@/utils/scanning";
-import { DeliveredJob } from "@/types";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import { DeliverySuccessModal } from "@/components/common/DeliverySuccessModal";
+import { BottomNav } from "@/components/layout/BottomNav";
 // Components
 import { Header } from "@/components/layout/Header";
-import { BottomNav } from "@/components/layout/BottomNav";
-import { DeliverySuccessModal } from "@/components/common/DeliverySuccessModal";
-import { JobsPage } from "@/pages/JobsPage";
 import { ActiveJobPage } from "@/pages/ActiveJobPage";
+import { AddExpensePage } from "@/pages/AddExpensePage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { ExpensesPage } from "@/pages/ExpensesPage";
-import { AddExpensePage } from "@/pages/AddExpensePage";
+import { JobsPage } from "@/pages/JobsPage";
 
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 // Hooks
 import { useJobState } from "@/hooks/useJobState";
-import { useWorkflowState } from "@/hooks/useWorkflowState";
 import { useLocation } from "@/hooks/useLocation";
 import { useTabNavigation } from "@/hooks/useTabNavigation";
 import { useWorkflowLogic } from "@/hooks/useWorkflowLogic";
+import { useWorkflowState } from "@/hooks/useWorkflowState";
 
 export default function Home() {
+  const { isAuthenticated, loading: authLoading } = useFirebaseAuth();
+  const router = useRouter();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#ccfff2] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004d39] mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">กำลังตรวจสอบการเข้าสู่ระบบ...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render main content if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
   // Job State
   const {
     jobs,
@@ -38,8 +66,7 @@ export default function Home() {
   } = useJobState();
 
   // Tab Navigation (must be after currentJob to use it)
-  const { activeTab, setActiveTab, setActiveTabState } =
-    useTabNavigation(currentJob);
+  const { activeTab, setActiveTab, setActiveTabState } = useTabNavigation(currentJob);
 
   // Workflow State
   const workflowState = useWorkflowState();
@@ -52,8 +79,7 @@ export default function Home() {
 
   // Modal State
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [lastDeliveryRecord, setLastDeliveryRecord] =
-    useState<DeliveredJob | null>(null);
+  const [lastDeliveryRecord, setLastDeliveryRecord] = useState<DeliveredJob | null>(null);
   const [viewJobModal, setViewJobModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState<DeliveredJob | null>(null);
 
@@ -115,6 +141,7 @@ export default function Home() {
 
   // Workflow Logic
   const workflowLogic = useWorkflowLogic({
+    checkInPhotos: workflowState.checkInPhotos,
     step: workflowState.step,
     setStep: workflowState.setStep,
     isDelayed: workflowState.isDelayed,
@@ -143,7 +170,7 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans max-w-md mx-auto border-x shadow-2xl relative overflow-x-hidden select-none">
+    <div className="min-h-screen bg-[#ccfff2] font-sans max-w-md mx-auto border-x shadow-2xl relative overflow-x-hidden select-none">
       <DeliverySuccessModal
         isOpen={showSuccessModal}
         onClose={handleCloseSuccessModal}
@@ -163,13 +190,7 @@ export default function Home() {
 
       <main className="min-h-screen pb-40 pt-24">
         {activeTab === "jobs" && (
-          <JobsPage
-            jobs={jobs}
-            currentJob={currentJob}
-            onStartJob={handleStartJob}
-            isStartingJob={isStartingJob}
-            startingJobId={startingJobId}
-          />
+          <JobsPage jobs={jobs} currentJob={currentJob} onStartJob={handleStartJob} isStartingJob={isStartingJob} startingJobId={startingJobId} />
         )}
 
         {activeTab === "active-job" && currentJob && (
@@ -183,8 +204,8 @@ export default function Home() {
             locationSyncedTime={locationState.locationSyncedTime}
             onRefreshLocation={locationState.fetchLocation}
             step={workflowState.step}
-            checkInPhoto={workflowState.checkInPhoto}
-            setCheckInPhoto={workflowState.setCheckInPhoto}
+            checkInPhotos={workflowState.checkInPhotos}
+            setCheckInPhotos={workflowState.setCheckInPhotos}
             runSheetNumber={workflowState.runSheetNumber}
             pickupPhotos={workflowState.pickupPhotos}
             setPickupPhotos={workflowState.setPickupPhotos}
@@ -198,9 +219,7 @@ export default function Home() {
             incidentType={workflowState.incidentType}
             setIncidentType={workflowState.setIncidentType}
             incidentOtherDescription={workflowState.incidentOtherDescription}
-            setIncidentOtherDescription={
-              workflowState.setIncidentOtherDescription
-            }
+            setIncidentOtherDescription={workflowState.setIncidentOtherDescription}
             incidentPhotos={workflowState.incidentPhotos}
             setIncidentPhotos={workflowState.setIncidentPhotos}
             confirmedIncidentTime={workflowState.confirmedIncidentTime}
@@ -215,13 +234,9 @@ export default function Home() {
           />
         )}
 
-        {activeTab === "expenses" && (
-          <ExpensesPage onAddExpense={() => setActiveTabState("add-expense")} />
-        )}
+        {activeTab === "expenses" && <ExpensesPage onAddExpense={() => setActiveTabState("add-expense")} />}
 
-        {activeTab === "add-expense" && (
-          <AddExpensePage onBack={() => setActiveTabState("expenses")} />
-        )}
+        {activeTab === "add-expense" && <AddExpensePage onBack={() => setActiveTabState("expenses")} />}
 
         {activeTab === "dashboard" && (
           <DashboardPage
@@ -234,11 +249,7 @@ export default function Home() {
         )}
       </main>
 
-      <BottomNav
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        hasActiveJob={currentJob !== null}
-      />
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} hasActiveJob={currentJob !== null} />
     </div>
   );
 }

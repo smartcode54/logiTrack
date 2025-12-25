@@ -7,20 +7,11 @@ interface ScannerOverlayProps {
   setRunSheetNumber: (number: string) => void;
 }
 
-export const ScannerOverlay = ({
-  setIsScanning,
-  setRunSheetNumber,
-}: ScannerOverlayProps) => {
+export const ScannerOverlay = ({ setIsScanning, setRunSheetNumber }: ScannerOverlayProps) => {
   const handleScanSuccess = (decodedText: string) => {
     setRunSheetNumber(decodedText);
     setIsScanning(false);
   };
 
-  return (
-    <QRScanner
-      onScanSuccess={handleScanSuccess}
-      onClose={() => setIsScanning(false)}
-    />
-  );
+  return <QRScanner onScanSuccess={handleScanSuccess} onClose={() => setIsScanning(false)} />;
 };
-

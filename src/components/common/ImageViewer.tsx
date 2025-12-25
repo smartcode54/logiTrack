@@ -1,7 +1,7 @@
 "use client";
 
-import { X, ZoomIn, ZoomOut, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ImageViewerProps {
   imageSrc: string | string[];
@@ -10,12 +10,7 @@ interface ImageViewerProps {
   initialIndex?: number;
 }
 
-export const ImageViewer = ({ 
-  imageSrc, 
-  onClose, 
-  alt = "Image",
-  initialIndex = 0
-}: ImageViewerProps) => {
+export const ImageViewer = ({ imageSrc, onClose, alt = "Image", initialIndex = 0 }: ImageViewerProps) => {
   const images = Array.isArray(imageSrc) ? imageSrc : [imageSrc];
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [scale, setScale] = useState(1);
@@ -120,7 +115,7 @@ export const ImageViewer = ({
         // Normal mode - swipe between images
         const deltaX = touch.clientX - swipeStart.x;
         const deltaY = touch.clientY - swipeStart.y;
-        
+
         // Only allow horizontal swipe if it's more horizontal than vertical
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
           setSwipeOffset(deltaX);
@@ -156,13 +151,8 @@ export const ImageViewer = ({
     >
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 z-30 flex justify-between items-center p-4 bg-black/50">
-        <h3 className="text-white font-black uppercase">
-          ดูภาพ {images.length > 1 && `(${currentIndex + 1}/${images.length})`}
-        </h3>
-        <button
-          onClick={onClose}
-          className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
-        >
+        <h3 className="text-white font-black uppercase">ดูภาพ {images.length > 1 && `(${currentIndex + 1}/${images.length})`}</h3>
+        <button onClick={onClose} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors">
           <X size={24} className="text-white" />
         </button>
       </div>
@@ -194,9 +184,8 @@ export const ImageViewer = ({
         <div
           className="relative max-w-full max-h-full w-full h-full flex items-center justify-center"
           style={{
-            transform: scale === 1 && swipeOffset !== 0 
-              ? `translateX(${swipeOffset}px)` 
-              : `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            transform:
+              scale === 1 && swipeOffset !== 0 ? `translateX(${swipeOffset}px)` : `translate(${position.x}px, ${position.y}px) scale(${scale})`,
             transition: isDragging || swipeOffset !== 0 ? "none" : "transform 0.2s",
             cursor: scale > 1 ? (isDragging ? "grabbing" : "grab") : "default",
           }}
@@ -213,9 +202,7 @@ export const ImageViewer = ({
               key={index}
               src={img}
               alt={`${alt} ${index + 1}`}
-              className={`max-w-full max-h-full object-contain ${
-                index === currentIndex ? "block" : "hidden"
-              }`}
+              className={`max-w-full max-h-full object-contain ${index === currentIndex ? "block" : "hidden"}`}
               draggable={false}
             />
           ))}
@@ -228,9 +215,7 @@ export const ImageViewer = ({
           onClick={handleZoomOut}
           disabled={scale <= 0.5}
           className={`p-3 rounded-full ${
-            scale <= 0.5
-              ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-              : "bg-white/10 text-white hover:bg-white/20"
+            scale <= 0.5 ? "bg-gray-700 text-gray-400 cursor-not-allowed" : "bg-white/10 text-white hover:bg-white/20"
           } transition-colors`}
         >
           <ZoomOut size={24} />
@@ -245,9 +230,7 @@ export const ImageViewer = ({
           onClick={handleZoomIn}
           disabled={scale >= 3}
           className={`p-3 rounded-full ${
-            scale >= 3
-              ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-              : "bg-white/10 text-white hover:bg-white/20"
+            scale >= 3 ? "bg-gray-700 text-gray-400 cursor-not-allowed" : "bg-white/10 text-white hover:bg-white/20"
           } transition-colors`}
         >
           <ZoomIn size={24} />
@@ -256,4 +239,3 @@ export const ImageViewer = ({
     </div>
   );
 };
-

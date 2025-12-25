@@ -1,22 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
-import { Receipt } from "lucide-react";
 import { ExpenseCard, ExpenseSummary } from "@/components/expenses";
 import { useExpenseState } from "@/hooks/useExpenseState";
+import { Receipt } from "lucide-react";
+import { useEffect } from "react";
 
 interface ExpensesPageProps {
   onAddExpense: () => void;
 }
 
 export const ExpensesPage = ({ onAddExpense }: ExpensesPageProps) => {
-  const {
-    expenses,
-    deleteExpense,
-    getTotalExpenses,
-    getTotalByCategory,
-  } = useExpenseState();
-  
+  const { expenses, deleteExpense, getTotalExpenses, getTotalByCategory } = useExpenseState();
+
   // Force reload when component becomes visible (when navigating back to this page)
   useEffect(() => {
     // Trigger reload by dispatching custom event
@@ -51,11 +46,9 @@ export const ExpensesPage = ({ onAddExpense }: ExpensesPageProps) => {
   });
 
   return (
-    <div className="min-h-screen animate-fadeIn p-4 space-y-6 pb-40">
+    <div className="min-h-screen animate-fadeIn p-4 space-y-6 pb-40 bg-[#ccfff2]">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-black text-gray-800 tracking-tight">
-          บันทึกค่าใช้จ่าย
-        </h2>
+        <h2 className="text-2xl font-black text-white tracking-tight">บันทึกค่าใช้จ่าย</h2>
         {expenses.length > 0 && (
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <Receipt size={18} />
@@ -66,24 +59,15 @@ export const ExpensesPage = ({ onAddExpense }: ExpensesPageProps) => {
 
       {/* Summary */}
       {expenses.length > 0 && (
-        <ExpenseSummary
-          totalFuel={totalFuel}
-          totalMaintenance={totalMaintenance}
-          totalOther={totalOther}
-          totalAll={totalAll}
-        />
+        <ExpenseSummary totalFuel={totalFuel} totalMaintenance={totalMaintenance} totalOther={totalOther} totalAll={totalAll} />
       )}
 
       {/* Expenses List */}
       {expenses.length === 0 ? (
         <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center gap-4">
           <Receipt size={48} className="text-gray-300" />
-          <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">
-            ยังไม่มีรายการค่าใช้จ่าย
-          </p>
-          <p className="text-xs text-gray-400">
-            กดปุ่ม + เพื่อเพิ่มค่าใช้จ่าย
-          </p>
+          <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">ยังไม่มีรายการค่าใช้จ่าย</p>
+          <p className="text-xs text-gray-400">กดปุ่ม + เพื่อเพิ่มค่าใช้จ่าย</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -91,18 +75,12 @@ export const ExpensesPage = ({ onAddExpense }: ExpensesPageProps) => {
             <div key={date} className="space-y-3">
               <div className="flex items-center gap-2 px-2">
                 <div className="h-px flex-1 bg-gray-200"></div>
-                <span className="text-xs font-black text-gray-500 uppercase tracking-widest">
-                  {date}
-                </span>
+                <span className="text-xs font-black text-gray-500 uppercase tracking-widest">{date}</span>
                 <div className="h-px flex-1 bg-gray-200"></div>
               </div>
               <div className="space-y-3">
                 {groupedExpenses[date].map((expense) => (
-                  <ExpenseCard
-                    key={expense.id}
-                    expense={expense}
-                    onDelete={deleteExpense}
-                  />
+                  <ExpenseCard key={expense.id} expense={expense} onDelete={deleteExpense} />
                 ))}
               </div>
             </div>
@@ -122,4 +100,3 @@ export const ExpensesPage = ({ onAddExpense }: ExpensesPageProps) => {
 };
 
 export default ExpensesPage;
-

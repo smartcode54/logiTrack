@@ -1,5 +1,44 @@
 # App Check Troubleshooting Guide
 
+## ✅ App Check Debug Token (Development Mode)
+
+### ข้อความแจ้งเตือน:
+```
+App Check debug token: aed75168-5cfd-4453-92b8-b63aed00d8da. 
+You will need to add it to your app's App Check settings in the Firebase console for it to work.
+```
+
+**นี่ไม่ใช่ Error!** นี่เป็นข้อความปกติเมื่อใช้ App Check Debug Mode ใน development
+
+### วิธีเพิ่ม Debug Token ใน Firebase Console:
+
+1. **ไปที่ Firebase Console**:
+   - เปิด [Firebase Console](https://console.firebase.google.com/)
+   - เลือก Project ของคุณ
+
+2. **เปิด App Check Settings**:
+   - ไปที่ **Build** > **App Check** ในเมนูด้านซ้าย
+   - คลิกที่ **Apps** tab (หรือ **APIs** tab)
+
+3. **เพิ่ม Debug Token**:
+   - คลิกที่ Web App ของคุณ (หรือ App ที่ต้องการ)
+   - ไปที่ **Debug tokens** section
+   - คลิก **Add debug token**
+   - วาง debug token ที่ได้จาก console: `aed75168-5cfd-4453-92b8-b63aed00d8da`
+   - คลิก **Save**
+
+4. **ตรวจสอบ**:
+   - หลังจากเพิ่ม debug token แล้ว
+   - Refresh หน้าเว็บ
+   - ข้อความแจ้งเตือนจะหายไป
+   - App Check จะทำงานใน debug mode
+
+### หมายเหตุ:
+- Debug token ใช้สำหรับ development เท่านั้น
+- แต่ละ developer ควรมี debug token ของตัวเอง
+- Debug token จะเปลี่ยนเมื่อ clear browser cache หรือใช้ browser ใหม่
+- สำหรับ production ไม่ต้องใช้ debug token
+
 ## 🔍 Quick Debug Commands
 
 ### In Browser Console

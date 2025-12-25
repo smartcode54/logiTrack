@@ -23,18 +23,12 @@ export const detectBlur = (imageData: ImageData): number => {
       const leftIdx = (y * width + (x - 1)) * 4;
       const rightIdx = (y * width + (x + 1)) * 4;
 
-      const topGray =
-        (data[topIdx] + data[topIdx + 1] + data[topIdx + 2]) / 3;
-      const bottomGray =
-        (data[bottomIdx] + data[bottomIdx + 1] + data[bottomIdx + 2]) / 3;
-      const leftGray =
-        (data[leftIdx] + data[leftIdx + 1] + data[leftIdx + 2]) / 3;
-      const rightGray =
-        (data[rightIdx] + data[rightIdx + 1] + data[rightIdx + 2]) / 3;
+      const topGray = (data[topIdx] + data[topIdx + 1] + data[topIdx + 2]) / 3;
+      const bottomGray = (data[bottomIdx] + data[bottomIdx + 1] + data[bottomIdx + 2]) / 3;
+      const leftGray = (data[leftIdx] + data[leftIdx + 1] + data[leftIdx + 2]) / 3;
+      const rightGray = (data[rightIdx] + data[rightIdx + 1] + data[rightIdx + 2]) / 3;
 
-      const laplacian = Math.abs(
-        4 * gray - topGray - bottomGray - leftGray - rightGray
-      );
+      const laplacian = Math.abs(4 * gray - topGray - bottomGray - leftGray - rightGray);
       laplacianSum += laplacian;
       laplacianSquaredSum += laplacian * laplacian;
       count++;
@@ -50,4 +44,3 @@ export const detectBlur = (imageData: ImageData): number => {
 };
 
 export const BLUR_THRESHOLD = 100; // Threshold สำหรับความชัด
-

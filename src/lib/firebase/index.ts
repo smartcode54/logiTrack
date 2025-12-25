@@ -50,12 +50,12 @@ export {
 
 // Cloud Functions
 export {
-  jobFunctions,
-  expenseFunctions,
-  notificationFunctions,
-  analyticsFunctions,
   geocodingFunctions,
-  imageProcessingFunctions,
   callCloudFunction,
 } from "./functions";
+
+// Workflow Database
+export * from "./workflowDatabase";
+export * from "./workflowActivities";
+export * from "./workflowDatabaseHelpers";
 

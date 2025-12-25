@@ -1,4 +1,4 @@
-import { Timestamp } from "@/types";
+import type { Timestamp } from "@/types";
 
 /**
  * สร้าง timestamp ในรูปแบบไทย (พ.ศ.)
@@ -17,4 +17,3 @@ export const createTimestamp = (): Timestamp => {
 
   return { date: dateString, time: timeString };
 };
-

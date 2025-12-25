@@ -1,17 +1,12 @@
 "use client";
 
-import React, { useCallback } from "react";
-import { createTimestamp } from "@/utils/dateTime";
 import { INCIDENT_OPTIONS } from "@/constants/incidents";
-import { Job, DeliveredJob, Timestamp, GeoapifySearchResult } from "@/types";
-import {
-  Truck,
-  FileText,
-  Navigation,
-  AlertTriangle,
-  MapPin,
-  PackageCheck,
-} from "lucide-react";
+import { getCurrentUser } from "@/lib/firebase/auth";
+import { saveCheckInActivity } from "@/lib/firebase/workflowDatabase";
+import type { CheckInPhotos, DeliveredJob, GeoapifySearchResult, Job, Timestamp } from "@/types";
+import { createTimestamp } from "@/utils/dateTime";
+import { AlertTriangle, FileText, MapPin, Navigation, PackageCheck, Truck } from "lucide-react";
+import React, { useCallback } from "react";
 
 interface UseWorkflowLogicProps {
   step: number;
@@ -28,6 +23,7 @@ interface UseWorkflowLogicProps {
   runSheetNumber: string;
   currentAddress: GeoapifySearchResult | null;
   currentJob: Job | null;
+  checkInPhotos: CheckInPhotos;
   onCompleteJob: (record: DeliveredJob) => void;
   onResetWorkflow: () => void;
   incidentAddress: GeoapifySearchResult | null;
@@ -56,6 +52,7 @@ export const useWorkflowLogic = ({
   runSheetNumber,
   currentAddress,
   currentJob,
+  checkInPhotos,
   onCompleteJob,
   onResetWorkflow,
   incidentAddress,
@@ -71,55 +68,34 @@ export const useWorkflowLogic = ({
   const getSteps = useCallback(() => {
     const baseSteps = ["บันทึก Check-in", "บันทึกรับสินค้า", "ออกเดินทาง"];
     if (isDelayed) {
-      return [
-        ...baseSteps,
-        "เลือกเหตุการณ์ระหว่างเดินทาง",
-        "บันทึกภาพเหตุการณ์ระหว่างเดินทาง",
-        "ถึงจุดส่งของ",
-        "จัดส่งสำเร็จ (POD)",
-      ];
+      return [...baseSteps, "เลือกเหตุการณ์ระหว่างเดินทาง", "บันทึกภาพเหตุการณ์ระหว่างเดินทาง", "ถึงจุดส่งของ", "จัดส่งสำเร็จ (POD)"];
     }
-    return [
-      ...baseSteps,
-      "เลือกเหตุการณ์ระหว่างเดินทาง",
-      "ถึงจุดส่งของ",
-      "จัดส่งสำเร็จ (POD)",
-    ];
+    return [...baseSteps, "เลือกเหตุการณ์ระหว่างเดินทาง", "ถึงจุดส่งของ", "จัดส่งสำเร็จ (POD)"];
   }, [isDelayed]);
 
   const getDisplayLabel = useCallback(
     (index: number): string => {
       const steps = getSteps();
       const stepLabels: Record<number, string> = {
-        0: confirmedCheckInTime
-          ? `Check-in ยืนยันเข้ารับงานแล้ว @ ${confirmedCheckInTime.date} ${confirmedCheckInTime.time}`
-          : steps[0],
-        1: confirmedPickupTime
-          ? `บันทึกรับสินค้าสำเร็จ [RS: ${runSheetNumber}] @ ${confirmedPickupTime.date} ${confirmedPickupTime.time}`
-          : steps[1],
-        2: confirmedDepartureTime
-          ? `ออกเดินทางเมื่อ @ ${confirmedDepartureTime.date} ${confirmedDepartureTime.time}`
-          : steps[2],
+        0: confirmedCheckInTime ? `Check-in ยืนยันเข้ารับงานแล้ว @ ${confirmedCheckInTime.date} ${confirmedCheckInTime.time}` : steps[0],
+        1: confirmedPickupTime ? `บันทึกรับสินค้าสำเร็จ [RS: ${runSheetNumber}] @ ${confirmedPickupTime.date} ${confirmedPickupTime.time}` : steps[1],
+        2: confirmedDepartureTime ? `ออกเดินทางเมื่อ @ ${confirmedDepartureTime.date} ${confirmedDepartureTime.time}` : steps[2],
         3: "เลือกเหตุการณ์ระหว่างเดินทาง",
         4: isDelayed
           ? confirmedIncidentTime
             ? `บันทึกภาพเหตุการณ์ระหว่างเดินทาง @ ${confirmedIncidentTime.date} ${confirmedIncidentTime.time}`
             : steps[4]
           : confirmedArrivalTime
-          ? `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime.date} ${confirmedArrivalTime.time}`
-          : steps[4],
+            ? `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime.date} ${confirmedArrivalTime.time}`
+            : steps[4],
         5: isDelayed
           ? confirmedArrivalTime
             ? `ถึงจุดส่งของเมื่อ @ ${confirmedArrivalTime.date} ${confirmedArrivalTime.time}`
             : steps[5]
           : confirmedDeliveryTime
-          ? `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime.date} ${confirmedDeliveryTime.time}`
-          : steps[5],
-        6: isDelayed
-          ? confirmedDeliveryTime
             ? `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime.date} ${confirmedDeliveryTime.time}`
-            : steps[6]
-          : "",
+            : steps[5],
+        6: isDelayed ? (confirmedDeliveryTime ? `จัดส่งสินค้าสำเร็จ (POD) @ ${confirmedDeliveryTime.date} ${confirmedDeliveryTime.time}` : steps[6]) : "",
       };
 
       if (index < step && stepLabels[index]) {
@@ -185,6 +161,42 @@ export const useWorkflowLogic = ({
     // Set timestamps based on step
     if (step === 0) {
       setConfirmedCheckInTime(timestamp);
+
+      // Save check-in activity to Firestore with uploaded images
+      if (currentJob && checkInPhotos.truckAndLicense && checkInPhotos.customerCheckIn) {
+        try {
+          const user = getCurrentUser();
+          if (!user) {
+            console.error("User not authenticated");
+            return;
+          }
+
+          await saveCheckInActivity(
+            {
+              jobId: currentJob.id,
+              driverId: user.uid,
+              step: "checkin",
+              timestamp: Date.now(),
+              data: {
+                photos: checkInPhotos,
+                confirmedTime: timestamp,
+                location: currentAddress?.address
+                  ? {
+                      latitude: currentAddress.address.latitude,
+                      longitude: currentAddress.address.longitude,
+                      address: currentAddress.address,
+                    }
+                  : undefined,
+              },
+            },
+            user.uid
+          );
+          console.log("Check-in activity saved successfully");
+        } catch (error) {
+          console.error("Error saving check-in activity:", error);
+          // Continue with workflow even if save fails
+        }
+      }
     }
     if (step === 1) {
       setConfirmedPickupTime(timestamp);
@@ -225,19 +237,13 @@ export const useWorkflowLogic = ({
     } else {
       if (!currentJob) return;
 
-      const finalDeliveryTime =
-        (isDelayed && step === 6) || (!isDelayed && step === 5)
-          ? timestamp
-          : confirmedDeliveryTime;
+      const finalDeliveryTime = (isDelayed && step === 6) || (!isDelayed && step === 5) ? timestamp : confirmedDeliveryTime;
       if (confirmedPickupTime && finalDeliveryTime && runSheetNumber) {
         // Get incident type label, use other description if "other" is selected
         const incidentTypeLabel =
           incidentType === "other"
             ? incidentOtherDescription || "อื่นๆ"
-            : INCIDENT_OPTIONS.find(
-                (opt: { value: string; label: string }) =>
-                  opt.value === incidentType
-              )?.label || "";
+            : INCIDENT_OPTIONS.find((opt: { value: string; label: string }) => opt.value === incidentType)?.label || "";
         const deliveryRecord: DeliveredJob = {
           id: currentJob.id,
           runSheet: runSheetNumber,
@@ -248,14 +254,8 @@ export const useWorkflowLogic = ({
           date: finalDeliveryTime.date,
           status: isDelayed ? "delay" : "success",
           incidentType: isDelayed ? incidentTypeLabel : undefined,
-          incidentTime:
-            isDelayed && confirmedIncidentTime
-              ? `${confirmedIncidentTime.date} ${confirmedIncidentTime.time}`
-              : undefined,
-          incidentAddress:
-            isDelayed && incidentAddress
-              ? incidentAddress.address.formatted
-              : undefined,
+          incidentTime: isDelayed && confirmedIncidentTime ? `${confirmedIncidentTime.date} ${confirmedIncidentTime.time}` : undefined,
+          incidentAddress: isDelayed && incidentAddress ? incidentAddress.address.formatted : undefined,
         };
         onCompleteJob(deliveryRecord);
         onResetWorkflow();
@@ -272,9 +272,11 @@ export const useWorkflowLogic = ({
     runSheetNumber,
     currentAddress,
     currentJob,
+    checkInPhotos,
     onCompleteJob,
     onResetWorkflow,
     setStep,
+    setConfirmedCheckInTime,
     setConfirmedIncidentTime,
     setConfirmedArrivalTime,
     setConfirmedDeliveryTime,

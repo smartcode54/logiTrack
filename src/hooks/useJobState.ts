@@ -1,5 +1,5 @@
+import type { DeliveredJob, Job } from "@/types";
 import { useState } from "react";
-import { Job, DeliveredJob } from "@/types";
 
 const INITIAL_JOBS: Job[] = [
   {
@@ -28,11 +28,7 @@ export const useJobState = () => {
   const [startingJobId, setStartingJobId] = useState<string | null>(null);
 
   const markJobAsDelivered = (jobId: string) => {
-    setJobs((prev) =>
-      prev.map((j) =>
-        j.id === jobId ? { ...j, status: "delivered" as const } : j
-      )
-    );
+    setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, status: "delivered" as const } : j)));
   };
 
   const addDeliveredJob = (job: DeliveredJob) => {
@@ -59,4 +55,3 @@ export const useJobState = () => {
     resetCurrentJob,
   };
 };
-

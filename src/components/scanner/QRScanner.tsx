@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { BrowserMultiFormatReader } from "@zxing/library";
 import { X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface QRScannerProps {
   onScanSuccess: (decodedText: string) => void;
@@ -54,12 +54,7 @@ export const QRScanner = ({ onScanSuccess, onClose }: QRScannerProps) => {
 
         // สแกนจาก canvas ที่ crop เฉพาะส่วนในกรอบ
         scanInterval = window.setInterval(() => {
-          if (
-            !isScanningActive ||
-            !videoRef.current ||
-            !canvasRef.current ||
-            !scanAreaRef.current
-          ) {
+          if (!isScanningActive || !videoRef.current || !canvasRef.current || !scanAreaRef.current) {
             return;
           }
 
@@ -82,22 +77,15 @@ export const QRScanner = ({ onScanSuccess, onClose }: QRScannerProps) => {
             const scaleY = video.videoHeight / videoRect.height;
 
             // คำนวณตำแหน่งสัมพัทธ์ของ scan area
-            const relativeX =
-              (areaRect.left - videoRect.left) / videoRect.width;
+            const relativeX = (areaRect.left - videoRect.left) / videoRect.width;
             const relativeY = (areaRect.top - videoRect.top) / videoRect.height;
             const relativeWidth = areaRect.width / videoRect.width;
             const relativeHeight = areaRect.height / videoRect.height;
 
             const x = Math.max(0, relativeX * video.videoWidth);
             const y = Math.max(0, relativeY * video.videoHeight);
-            const width = Math.min(
-              video.videoWidth - x,
-              relativeWidth * video.videoWidth
-            );
-            const height = Math.min(
-              video.videoHeight - y,
-              relativeHeight * video.videoHeight
-            );
+            const width = Math.min(video.videoWidth - x, relativeWidth * video.videoWidth);
+            const height = Math.min(video.videoHeight - y, relativeHeight * video.videoHeight);
 
             // ตั้งค่า canvas ให้เท่ากับขนาดของ scan area
             canvas.width = width;
@@ -220,23 +208,10 @@ export const QRScanner = ({ onScanSuccess, onClose }: QRScannerProps) => {
             <defs>
               <mask id="scanMask">
                 <rect width="100%" height="100%" fill="black" />
-                <rect
-                  x="12.5%"
-                  y="12.5%"
-                  width="75%"
-                  height="75%"
-                  fill="white"
-                  rx="8"
-                />
+                <rect x="12.5%" y="12.5%" width="75%" height="75%" fill="white" rx="8" />
               </mask>
             </defs>
-            <rect
-              width="100%"
-              height="100%"
-              fill="black"
-              fillOpacity="0.4"
-              mask="url(#scanMask)"
-            />
+            <rect width="100%" height="100%" fill="black" fillOpacity="0.4" mask="url(#scanMask)" />
           </svg>
           {/* Scan area rectangle - transparent center */}
           <div
@@ -254,23 +229,12 @@ export const QRScanner = ({ onScanSuccess, onClose }: QRScannerProps) => {
         <canvas ref={canvasRef} className="hidden" />
       </div>
       <div className="mt-8 text-center space-y-2 text-white">
-        <h3 className="font-black text-xl tracking-wider uppercase">
-          Scanning QR/Barcode
-        </h3>
-        <p className="text-gray-400 text-sm">
-          จัดวาง QR หรือ Barcode ให้ตรงกับกรอบ
-        </p>
-        {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
-        {isScanning && (
-          <p className="text-karabao-light text-xs mt-2 animate-pulse">
-            กำลังสแกน...
-          </p>
-        )}
+        <h3 className="font-black text-xl tracking-wider uppercase">Scanning QR/Barcode</h3>
+        <p className="text-gray-400 text-sm">จัดวาง QR หรือ Barcode ให้ตรงกับกรอบ</p>
+        {error && <p className="text-orange-400 text-sm mt-2">{error}</p>}
+        {isScanning && <p className="text-karabao-light text-xs mt-2 animate-pulse">กำลังสแกน...</p>}
       </div>
-      <button
-        onClick={handleClose}
-        className="mt-12 bg-white/10 text-white p-4 rounded-full active:scale-90 transition-all"
-      >
+      <button onClick={handleClose} className="mt-12 bg-white/10 text-white p-4 rounded-full active:scale-90 transition-all">
         <X size={24} />
       </button>
     </div>

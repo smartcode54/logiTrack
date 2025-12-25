@@ -1,7 +1,7 @@
 "use client";
 
-import { Fuel, Wrench, MoreHorizontal, TrendingUp } from "lucide-react";
-import { ExpenseCategory } from "@/types";
+import type { ExpenseCategory } from "@/types";
+import { Fuel, MoreHorizontal, TrendingUp, Wrench } from "lucide-react";
 
 interface ExpenseSummaryProps {
   totalFuel: number;
@@ -10,12 +10,7 @@ interface ExpenseSummaryProps {
   totalAll: number;
 }
 
-export const ExpenseSummary = ({
-  totalFuel,
-  totalMaintenance,
-  totalOther,
-  totalAll,
-}: ExpenseSummaryProps) => {
+export const ExpenseSummary = ({ totalFuel, totalMaintenance, totalOther, totalAll }: ExpenseSummaryProps) => {
   const summaryItems: Array<{
     category: ExpenseCategory;
     label: string;
@@ -30,9 +25,9 @@ export const ExpenseSummary = ({
       label: "น้ำมัน",
       icon: Fuel,
       amount: totalFuel,
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-700",
-      iconColor: "text-blue-600",
+      bgColor: "bg-green-50",
+      textColor: "text-green-700",
+      iconColor: "text-green-600",
     },
     {
       category: "maintenance",
@@ -65,23 +60,14 @@ export const ExpenseSummary = ({
         {summaryItems.map((item) => {
           const Icon = item.icon;
           return (
-            <div
-              key={item.category}
-              className="flex items-center justify-between p-3 rounded-xl border border-gray-100"
-            >
+            <div key={item.category} className="flex items-center justify-between p-3 rounded-xl border border-gray-100">
               <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-lg ${item.bgColor} flex items-center justify-center`}
-                >
+                <div className={`w-10 h-10 rounded-lg ${item.bgColor} flex items-center justify-center`}>
                   <Icon size={18} className={item.iconColor} />
                 </div>
-                <span className={`text-sm font-black ${item.textColor}`}>
-                  {item.label}
-                </span>
+                <span className={`text-sm font-black ${item.textColor}`}>{item.label}</span>
               </div>
-              <span className="text-sm font-black text-gray-800">
-                ฿{item.amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-              </span>
+              <span className="text-sm font-black text-gray-800">฿{item.amount.toLocaleString("th-TH", { minimumFractionDigits: 2 })}</span>
             </div>
           );
         })}
@@ -89,15 +75,10 @@ export const ExpenseSummary = ({
 
       <div className="border-t pt-4 mt-4">
         <div className="flex items-center justify-between">
-          <span className="text-base font-black text-gray-800 uppercase">
-            รวมทั้งหมด
-          </span>
-          <span className="text-2xl font-black text-karabao">
-            ฿{totalAll.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
-          </span>
+          <span className="text-base font-black text-gray-800 uppercase">รวมทั้งหมด</span>
+          <span className="text-2xl font-black text-karabao">฿{totalAll.toLocaleString("th-TH", { minimumFractionDigits: 2 })}</span>
         </div>
       </div>
     </div>
   );
 };
-

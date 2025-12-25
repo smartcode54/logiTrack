@@ -15,4 +15,3 @@ export { CameraCapture } from "./camera/CameraCapture";
 
 // Scanner
 export { ScannerOverlay } from "./scanner/ScannerOverlay";
-

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Expense, FuelExpenseData } from "@/types";
+import type { Expense, FuelExpenseData } from "@/types";
 import { createTimestamp } from "@/utils/dateTime";
+import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "logitrack_expenses";
 
@@ -27,9 +27,7 @@ const saveExpensesToStorage = (expenses: Expense[]) => {
 };
 
 export const useExpenseState = () => {
-  const [expenses, setExpenses] = useState<Expense[]>(() =>
-    loadExpensesFromStorage()
-  );
+  const [expenses, setExpenses] = useState<Expense[]>(() => loadExpensesFromStorage());
 
   // Sync with localStorage whenever expenses change
   useEffect(() => {
@@ -110,10 +108,7 @@ export const useExpenseState = () => {
   };
 
   const getTotalByCategory = (category: Expense["category"]) => {
-    return getExpensesByCategory(category).reduce(
-      (total, exp) => total + exp.amount,
-      0
-    );
+    return getExpensesByCategory(category).reduce((total, exp) => total + exp.amount, 0);
   };
 
   return {

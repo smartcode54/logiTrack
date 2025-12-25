@@ -1,5 +1,5 @@
+import type { Coordinate } from "@/types";
 import { useState } from "react";
-import { Coordinate } from "@/types";
 
 /**
  * เก็บค่า coordinate ปัจจุบัน (สำหรับใช้กับ geoapify.ts)
@@ -115,10 +115,7 @@ export const hasStoredCoordinate = (): boolean => {
  * @param options ตัวเลือกสำหรับการดึงพิกัด
  * @returns number | null (watchId สำหรับใช้กับ clearWatch)
  */
-export const watchCoordinate = (
-  callback: (coordinate: Coordinate | null) => void,
-  options: GetCoordinateOptions = {}
-): number | null => {
+export const watchCoordinate = (callback: (coordinate: Coordinate | null) => void, options: GetCoordinateOptions = {}): number | null => {
   if (typeof window === "undefined" || !navigator.geolocation) {
     console.warn("Geolocation is not supported");
     callback(null);

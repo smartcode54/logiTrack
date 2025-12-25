@@ -1,5 +1,5 @@
-import { GeoapifySearchResult } from "@/types";
-import { Timestamp } from "@/types";
+import type { GeoapifySearchResult } from "@/types";
+import type { Timestamp } from "@/types";
 
 interface OverlayOptions {
   address?: GeoapifySearchResult | null;
@@ -10,10 +10,7 @@ interface OverlayOptions {
 /**
  * เพิ่ม overlay ลงใน canvas
  */
-export function addOverlayToCanvas(
-  canvas: HTMLCanvasElement,
-  options: OverlayOptions
-): void {
+export function addOverlayToCanvas(canvas: HTMLCanvasElement, options: OverlayOptions): void {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
@@ -43,9 +40,7 @@ export function addOverlayToCanvas(
   // สร้างข้อความพิกัด
   let coordinatesText = "";
   if (address?.address?.latitude && address?.address?.longitude) {
-    coordinatesText = `ละติจูด: ${address.address.latitude.toFixed(
-      6
-    )}, ลองกิจูด: ${address.address.longitude.toFixed(6)}`;
+    coordinatesText = `ละติจูด: ${address.address.latitude.toFixed(6)}, ลองกิจูด: ${address.address.longitude.toFixed(6)}`;
   }
 
   // สร้างข้อความวันที่และเวลา (dd/MM/yyyy hh:mm:ss บรรทัดเดียว)
@@ -58,10 +53,7 @@ export function addOverlayToCanvas(
     dateTimeText = `${day.padStart(2, "0")}/${month.padStart(
       2,
       "0"
-    )}/${year} ${hours.padStart(2, "0")}:${minutes.padStart(
-      2,
-      "0"
-    )}:${seconds.padStart(2, "0")}`;
+    )}/${year} ${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}:${seconds.padStart(2, "0")}`;
   }
 
   // สร้างข้อความสถานะ
@@ -158,13 +150,7 @@ export function addOverlayToCanvas(
     // วาดวงกลมพื้นหลัง
     ctx.fillStyle = "#006633"; // karabao green
     ctx.beginPath();
-    ctx.arc(
-      checkmarkX + checkmarkSize / 2,
-      checkmarkY + checkmarkSize / 2,
-      checkmarkSize / 2,
-      0,
-      Math.PI * 2
-    );
+    ctx.arc(checkmarkX + checkmarkSize / 2, checkmarkY + checkmarkSize / 2, checkmarkSize / 2, 0, Math.PI * 2);
     ctx.fill();
 
     // วาดขอบสีขาว
@@ -190,10 +176,7 @@ export function addOverlayToCanvas(
 /**
  * เพิ่ม overlay ลงใน image data URL และคืนค่า image data URL ใหม่
  */
-export async function addOverlayToImage(
-  imageDataUrl: string,
-  options: OverlayOptions
-): Promise<string> {
+export async function addOverlayToImage(imageDataUrl: string, options: OverlayOptions): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {

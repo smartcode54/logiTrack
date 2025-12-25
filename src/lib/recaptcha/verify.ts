@@ -15,8 +15,11 @@ export interface VerifyTokenResponse {
   error?: string;
 }
 
+import { httpsCallable } from "firebase/functions";
+import { functions } from "@/lib/firebase/config";
+
 /**
- * Verify reCAPTCHA Enterprise token
+ * Verify reCAPTCHA Enterprise token using Firebase Function
  * 
  * @param params - Token verification parameters
  * @returns Verification result
@@ -25,24 +28,18 @@ export async function verifyRecaptchaToken(
   params: VerifyTokenParams
 ): Promise<VerifyTokenResponse> {
   try {
-    const response = await fetch("/api/recaptcha/verify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(params),
+    const verifyRecaptcha = httpsCallable<
+      { token: string; expectedAction?: string; siteKey?: string },
+      VerifyTokenResponse
+    >(functions, "verifyRecaptcha");
+
+    const result = await verifyRecaptcha({
+      token: params.token,
+      expectedAction: params.expectedAction,
+      siteKey: params.siteKey,
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: data.error || `Request failed with status ${response.status}`,
-      };
-    }
-
-    return data;
+    return result.data;
   } catch (error: any) {
     console.error("Error verifying reCAPTCHA token:", error);
     return {

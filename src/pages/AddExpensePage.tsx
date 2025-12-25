@@ -1,29 +1,29 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Image from "next/image";
-import {
-  ArrowLeft,
-  Plus,
-  Fuel,
-  Wrench,
-  MoreHorizontal,
-  Camera,
-  X,
-  CreditCard,
-  Banknote,
-  Image as ImageIcon,
-  FileText,
-  CheckCircle,
-  Gauge,
-  Check,
-} from "lucide-react";
-import { ExpenseCategory, PaymentType, FuelExpenseData } from "@/types";
-import { useExpenseState } from "@/hooks/useExpenseState";
 import { CameraCapture } from "@/components/camera/CameraCapture";
 import { ImageViewer } from "@/components/common/ImageViewer";
+import { useExpenseState } from "@/hooks/useExpenseState";
 import { useLocation } from "@/hooks/useLocation";
+import type { ExpenseCategory, FuelExpenseData, PaymentType } from "@/types";
 import { createTimestamp } from "@/utils/dateTime";
+import {
+  ArrowLeft,
+  Banknote,
+  Camera,
+  Check,
+  CheckCircle,
+  CreditCard,
+  FileText,
+  Fuel,
+  Gauge,
+  Image as ImageIcon,
+  MoreHorizontal,
+  Plus,
+  Wrench,
+  X,
+} from "lucide-react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 interface AddExpensePageProps {
   onBack: () => void;
@@ -47,30 +47,17 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
   const [receiptImage, setReceiptImage] = useState<string | null>(null);
 
   // Receipt images for maintenance (4 images) and other (1 image)
-  const [maintenanceReceiptImages, setMaintenanceReceiptImages] = useState<
-    (string | null)[]
-  >([null, null, null, null]);
-  const [otherReceiptImage, setOtherReceiptImage] = useState<string | null>(
-    null
-  );
+  const [maintenanceReceiptImages, setMaintenanceReceiptImages] = useState<(string | null)[]>([null, null, null, null]);
+  const [otherReceiptImage, setOtherReceiptImage] = useState<string | null>(null);
 
   const [showCamera, setShowCamera] = useState(false);
-  const [cameraType, setCameraType] = useState<
-    "beforeFill" | "receipt" | "maintenanceReceipt" | "otherReceipt" | null
-  >(null);
-  const [receiptImageIndex, setReceiptImageIndex] = useState<number | null>(
-    null
-  ); // For maintenance receipt images
+  const [cameraType, setCameraType] = useState<"beforeFill" | "receipt" | "maintenanceReceipt" | "otherReceipt" | null>(null);
+  const [receiptImageIndex, setReceiptImageIndex] = useState<number | null>(null); // For maintenance receipt images
   const [viewingImage, setViewingImage] = useState<string | null>(null);
   const [showReceiptOptions, setShowReceiptOptions] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const receiptFileInputRef = useRef<HTMLInputElement>(null);
-  const maintenanceReceiptFileInputRefs = useRef<(HTMLInputElement | null)[]>([
-    null,
-    null,
-    null,
-    null,
-  ]);
+  const maintenanceReceiptFileInputRefs = useRef<(HTMLInputElement | null)[]>([null, null, null, null]);
   const otherReceiptFileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch location when page loads
@@ -89,7 +76,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
   };
 
   const handleConfirmSave = () => {
-    const amountNum = parseFloat(amount);
+    const amountNum = Number.parseFloat(amount);
 
     // Prepare fuel data if category is fuel
     let fuelData: FuelExpenseData | undefined;
@@ -97,17 +84,15 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
 
     if (category === "fuel") {
       fuelData = {
-        mileage: mileage ? parseInt(mileage, 10) : null,
-        liters: liters ? parseFloat(parseFloat(liters).toFixed(2)) : null,
+        mileage: mileage ? Number.parseInt(mileage, 10) : null,
+        liters: liters ? Number.parseFloat(Number.parseFloat(liters).toFixed(2)) : null,
         paymentType: paymentType,
         beforeFillImage: beforeFillImage,
         receiptImage: receiptImage,
       };
     } else if (category === "maintenance") {
       // Filter out null values and keep only actual images
-      receiptImages = maintenanceReceiptImages.filter(
-        (img): img is string => img !== null
-      );
+      receiptImages = maintenanceReceiptImages.filter((img): img is string => img !== null);
     } else if (category === "other") {
       // Other category has optional receipt image
       if (otherReceiptImage) {
@@ -115,14 +100,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
       }
     }
 
-    addExpense(
-      category,
-      parseFloat(amountNum.toFixed(2)),
-      "",
-      category === "other" ? otherType : undefined,
-      fuelData,
-      receiptImages
-    );
+    addExpense(category, Number.parseFloat(amountNum.toFixed(2)), "", category === "other" ? otherType : undefined, fuelData, receiptImages);
 
     // Reset form and go back
     setAmount("");
@@ -144,10 +122,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
       setBeforeFillImage(imageData);
     } else if (cameraType === "receipt") {
       setReceiptImage(imageData);
-    } else if (
-      cameraType === "maintenanceReceipt" &&
-      receiptImageIndex !== null
-    ) {
+    } else if (cameraType === "maintenanceReceipt" && receiptImageIndex !== null) {
       const newImages = [...maintenanceReceiptImages];
       newImages[receiptImageIndex] = imageData;
       setMaintenanceReceiptImages(newImages);
@@ -159,9 +134,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
     setCameraType(null);
   };
 
-  const handleReceiptFileSelect = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleReceiptFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -192,10 +165,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
     }
   };
 
-  const handleMaintenanceReceiptFileSelect = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
+  const handleMaintenanceReceiptFileSelect = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -288,15 +258,15 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
   // Validation function
   const isFormValid = () => {
     // Check amount
-    const amountNum = parseFloat(amount);
+    const amountNum = Number.parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
       return false;
     }
 
     if (category === "fuel") {
       // Check all fuel-specific fields
-      const mileageNum = parseInt(mileage, 10);
-      const litersNum = parseFloat(liters);
+      const mileageNum = Number.parseInt(mileage, 10);
+      const litersNum = Number.parseFloat(liters);
 
       return (
         !isNaN(mileageNum) &&
@@ -312,9 +282,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
       return otherType.trim() !== "";
     } else if (category === "maintenance") {
       // Check that at least 1 receipt image is provided
-      const hasAtLeastOneImage = maintenanceReceiptImages.some(
-        (img) => img !== null
-      );
+      const hasAtLeastOneImage = maintenanceReceiptImages.some((img) => img !== null);
       return hasAtLeastOneImage;
     }
 
@@ -322,83 +290,58 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
   };
 
   return (
-    <div className="min-h-screen animate-fadeIn p-4 space-y-6 pb-40">
+    <div className="min-h-screen animate-fadeIn p-4 space-y-6 pb-40 bg-[#ccfff2]">
       {/* Header */}
       <div className="flex items-center gap-4 mb-2">
-        <button
-          onClick={onBack}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors -ml-2"
-        >
+        <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg transition-colors -ml-2">
           <ArrowLeft size={24} className="text-gray-700" />
         </button>
-        <h2 className="text-2xl font-black text-gray-800 tracking-tight">
-          เพิ่มค่าใช้จ่าย
-        </h2>
+        <h2 className="text-2xl font-black text-gray-800 tracking-tight">เพิ่มค่าใช้จ่าย</h2>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Category Selection */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <label className="text-sm font-black text-gray-700 uppercase mb-4 block">
-            ประเภทค่าใช้จ่าย
-          </label>
+          <label className="text-sm font-black text-gray-700 uppercase mb-4 block">ประเภทค่าใช้จ่าย</label>
           <div className="grid grid-cols-3 gap-3">
-            {(["fuel", "maintenance", "other"] as ExpenseCategory[]).map(
-              (cat) => {
-                const Icon = getCategoryIcon(cat);
-                const isSelected = category === cat;
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => {
-                      setCategory(cat);
-                      if (cat !== "other") {
-                        setOtherType("");
-                        setIsOtherCustom(false);
-                      }
-                    }}
-                    className={`p-4 rounded-xl border-2 transition-all relative ${
-                      isSelected
-                        ? "border-karabao bg-karabao/10 shadow-sm"
-                        : "border-gray-200 bg-white"
-                    }`}
-                  >
-                    {isSelected && (
-                      <div className="absolute top-2 right-2 w-6 h-6 bg-karabao rounded-full flex items-center justify-center">
-                        <Check size={14} className="text-white" />
-                      </div>
-                    )}
-                    <Icon
-                      size={24}
-                      className={`mb-2 mx-auto ${
-                        isSelected ? "text-karabao" : "text-gray-400"
-                      }`}
-                    />
-                    <p
-                      className={`text-xs font-black uppercase ${
-                        isSelected ? "text-karabao-dark" : "text-gray-500"
-                      }`}
-                    >
-                      {getCategoryLabel(cat)}
-                    </p>
-                  </button>
-                );
-              }
-            )}
+            {(["fuel", "maintenance", "other"] as ExpenseCategory[]).map((cat) => {
+              const Icon = getCategoryIcon(cat);
+              const isSelected = category === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => {
+                    setCategory(cat);
+                    if (cat !== "other") {
+                      setOtherType("");
+                      setIsOtherCustom(false);
+                    }
+                  }}
+                  className={`p-4 rounded-xl border-2 transition-all relative ${
+                    isSelected ? "border-karabao bg-karabao/10 shadow-sm" : "border-gray-200 bg-white"
+                  }`}
+                >
+                  {isSelected && (
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-karabao rounded-full flex items-center justify-center">
+                      <Check size={14} className="text-white" />
+                    </div>
+                  )}
+                  <Icon size={24} className={`mb-2 mx-auto ${isSelected ? "text-karabao" : "text-gray-400"}`} />
+                  <p className={`text-xs font-black uppercase ${isSelected ? "text-karabao-dark" : "text-gray-500"}`}>{getCategoryLabel(cat)}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Other Type Selection */}
         {category === "other" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <label className="text-sm font-black text-gray-700 uppercase mb-4 block">
-              เลือกประเภท
-            </label>
+            <label className="text-sm font-black text-gray-700 uppercase mb-4 block">เลือกประเภท</label>
             <div className="grid grid-cols-3 gap-2">
               {OTHER_TYPES.map((type) => {
-                const isSelected =
-                  otherType === type || (type === "อื่นๆ" && isOtherCustom);
+                const isSelected = otherType === type || (type === "อื่นๆ" && isOtherCustom);
                 return (
                   <button
                     key={type}
@@ -413,9 +356,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                       }
                     }}
                     className={`p-3 rounded-lg border-2 transition-all text-sm font-black relative ${
-                      isSelected
-                        ? "border-karabao bg-karabao/10 text-karabao-dark shadow-sm"
-                        : "border-gray-200 bg-white text-gray-600"
+                      isSelected ? "border-karabao bg-karabao/10 text-karabao-dark shadow-sm" : "border-gray-200 bg-white text-gray-600"
                     }`}
                   >
                     {isSelected && (
@@ -446,9 +387,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
           <>
             {/* Before Fill Image - ถ่ายรูปเลขไมล์+ระดับน้ำมันคงเหลือ */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <label className="text-sm font-black text-gray-700 uppercase mb-3 block">
-                ถ่ายรูปเลขไมล์+ระดับน้ำมันคงเหลือ
-              </label>
+              <label className="text-sm font-black text-gray-700 uppercase mb-3 block">ถ่ายรูปเลขไมล์+ระดับน้ำมันคงเหลือ</label>
               {beforeFillImage ? (
                 <div className="relative w-full h-48">
                   <Image
@@ -462,7 +401,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   <button
                     type="button"
                     onClick={() => setBeforeFillImage(null)}
-                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                    className="absolute top-2 right-2 p-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors z-10"
                   >
                     <X size={16} />
                   </button>
@@ -477,18 +416,14 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   className="w-full p-6 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center gap-2 hover:border-karabao hover:bg-karabao/10 transition-colors"
                 >
                   <Camera size={32} className="text-gray-400" />
-                  <span className="text-sm font-black text-gray-600">
-                    ถ่ายรูปเลขไมล์ก่อนเติมให้เห็นเกจวัดระดับน้ำมัน
-                  </span>
+                  <span className="text-sm font-black text-gray-600">ถ่ายรูปเลขไมล์ก่อนเติมให้เห็นเกจวัดระดับน้ำมัน</span>
                 </button>
               )}
             </div>
 
             {/* Mileage - เลขไมล์ก่อนเติม */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <label className="text-sm font-black text-gray-700 uppercase mb-3 block">
-                เลขไมล์ก่อนเติม (กม.)
-              </label>
+              <label className="text-sm font-black text-gray-700 uppercase mb-3 block">เลขไมล์ก่อนเติม (กม.)</label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -500,7 +435,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   }
                 }}
                 onBlur={(e) => {
-                  const value = parseInt(e.target.value, 10);
+                  const value = Number.parseInt(e.target.value, 10);
                   if (!isNaN(value) && value > 0) {
                     setMileage(value.toString());
                   }
@@ -515,17 +450,13 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
 
             {/* Payment Type - ประเภทการเติม (เฉพาะ fuel) */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <label className="text-sm font-black text-gray-700 uppercase mb-4 block">
-                ประเภทการเติม
-              </label>
+              <label className="text-sm font-black text-gray-700 uppercase mb-4 block">ประเภทการเติม</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setPaymentType("card")}
                   className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 relative ${
-                    paymentType === "card"
-                      ? "border-green-600 bg-green-100 shadow-sm"
-                      : "border-gray-200 bg-white"
+                    paymentType === "card" ? "border-green-600 bg-green-100 shadow-sm" : "border-gray-200 bg-white"
                   }`}
                 >
                   {paymentType === "card" && (
@@ -533,31 +464,14 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                       <Check size={14} className="text-white" />
                     </div>
                   )}
-                  <CreditCard
-                    size={20}
-                    className={
-                      paymentType === "card"
-                        ? "text-green-700"
-                        : "text-gray-400"
-                    }
-                  />
-                  <span
-                    className={`text-sm font-black ${
-                      paymentType === "card"
-                        ? "text-green-800"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    บัตรน้ำมัน
-                  </span>
+                  <CreditCard size={20} className={paymentType === "card" ? "text-green-700" : "text-gray-400"} />
+                  <span className={`text-sm font-black ${paymentType === "card" ? "text-green-800" : "text-gray-600"}`}>บัตรน้ำมัน</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentType("cash")}
                   className={`p-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 relative ${
-                    paymentType === "cash"
-                      ? "border-green-600 bg-green-100 shadow-sm"
-                      : "border-gray-200 bg-white"
+                    paymentType === "cash" ? "border-green-600 bg-green-100 shadow-sm" : "border-gray-200 bg-white"
                   }`}
                 >
                   {paymentType === "cash" && (
@@ -565,23 +479,8 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                       <Check size={14} className="text-white" />
                     </div>
                   )}
-                  <Banknote
-                    size={20}
-                    className={
-                      paymentType === "cash"
-                        ? "text-green-700"
-                        : "text-gray-400"
-                    }
-                  />
-                  <span
-                    className={`text-sm font-black ${
-                      paymentType === "cash"
-                        ? "text-green-800"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    เงินสด
-                  </span>
+                  <Banknote size={20} className={paymentType === "cash" ? "text-green-700" : "text-gray-400"} />
+                  <span className={`text-sm font-black ${paymentType === "cash" ? "text-green-800" : "text-gray-600"}`}>เงินสด</span>
                 </button>
               </div>
             </div>
@@ -590,9 +489,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
 
         {/* Amount - จำนวนเงิน */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <label className="text-sm font-black text-gray-700 uppercase mb-3 block">
-            จำนวนเงิน (บาท)
-          </label>
+          <label className="text-sm font-black text-gray-700 uppercase mb-3 block">จำนวนเงิน (บาท)</label>
           <input
             type="number"
             inputMode="decimal"
@@ -604,7 +501,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
               }
             }}
             onBlur={(e) => {
-              const value = parseFloat(e.target.value);
+              const value = Number.parseFloat(e.target.value);
               if (!isNaN(value)) {
                 setAmount(value.toFixed(2));
               }
@@ -620,9 +517,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
         {/* Liters - จำนวนลิตร (เฉพาะ fuel) */}
         {category === "fuel" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">
-              จำนวนลิตรที่เติม
-            </label>
+            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">จำนวนลิตรที่เติม</label>
             <input
               type="number"
               inputMode="decimal"
@@ -634,7 +529,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                 }
               }}
               onBlur={(e) => {
-                const value = parseFloat(e.target.value);
+                const value = Number.parseFloat(e.target.value);
                 if (!isNaN(value) && value > 0) {
                   setLiters(value.toFixed(2));
                 }
@@ -651,9 +546,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
         {/* Receipt Image - บิล/ใบเสร็จ (เฉพาะ fuel) */}
         {category === "fuel" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">
-              บิล/ใบเสร็จน้ำมัน
-            </label>
+            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">บิล/ใบเสร็จน้ำมัน</label>
             {receiptImage ? (
               <div className="relative w-full h-48">
                 <Image
@@ -667,7 +560,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                 <button
                   type="button"
                   onClick={() => setReceiptImage(null)}
-                  className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                  className="absolute top-2 right-2 p-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors z-10"
                 >
                   <X size={16} />
                 </button>
@@ -679,9 +572,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                 className="w-full p-6 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center gap-2 hover:border-green-500 hover:bg-green-50 transition-colors"
               >
                 <FileText size={32} className="text-gray-400" />
-                <span className="text-sm font-black text-gray-600">
-                  เพิ่มบิล/ใบเสร็จน้ำมัน
-                </span>
+                <span className="text-sm font-black text-gray-600">เพิ่มบิล/ใบเสร็จน้ำมัน</span>
               </button>
             )}
           </div>
@@ -690,9 +581,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
         {/* Receipt Images - บิล/ใบเสร็จ (maintenance - 4 images, at least 1 required) */}
         {category === "maintenance" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">
-              บิล/ใบเสร็จเช็คระยะ (อย่างน้อย 1 ภาพ)
-            </label>
+            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">บิล/ใบเสร็จเช็คระยะ (อย่างน้อย 1 ภาพ)</label>
             <div className="grid grid-cols-2 gap-3">
               {maintenanceReceiptImages.map((image, index) => (
                 <div key={index} className="relative">
@@ -713,7 +602,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                           newImages[index] = null;
                           setMaintenanceReceiptImages(newImages);
                         }}
-                        className="absolute top-1 right-1 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                        className="absolute top-1 right-1 p-1.5 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors z-10"
                       >
                         <X size={12} />
                       </button>
@@ -725,9 +614,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                       className="w-full h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center gap-1 hover:border-karabao hover:bg-karabao/10 transition-colors"
                     >
                       <FileText size={20} className="text-gray-400" />
-                      <span className="text-xs font-black text-gray-600">
-                        รูป {index + 1}
-                      </span>
+                      <span className="text-xs font-black text-gray-600">รูป {index + 1}</span>
                     </button>
                   )}
                 </div>
@@ -739,9 +626,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
         {/* Receipt Image - บิล/ใบเสร็จ (other - 1 image, optional) */}
         {category === "other" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">
-              บิล/ใบเสร็จ (ไม่บังคับ)
-            </label>
+            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">บิล/ใบเสร็จ (ไม่บังคับ)</label>
             {otherReceiptImage ? (
               <div className="relative w-full h-48">
                 <Image
@@ -755,7 +640,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                 <button
                   type="button"
                   onClick={() => setOtherReceiptImage(null)}
-                  className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors z-10"
+                  className="absolute top-2 right-2 p-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors z-10"
                 >
                   <X size={16} />
                 </button>
@@ -767,9 +652,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                 className="w-full p-6 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center gap-2 hover:border-green-500 hover:bg-green-50 transition-colors"
               >
                 <FileText size={32} className="text-gray-400" />
-                <span className="text-sm font-black text-gray-600">
-                  เพิ่มบิล/ใบเสร็จ
-                </span>
+                <span className="text-sm font-black text-gray-600">เพิ่มบิล/ใบเสร็จ</span>
               </button>
             )}
           </div>
@@ -796,9 +679,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
       {showReceiptOptions && (
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 max-w-xs w-full space-y-3">
-            <h3 className="text-sm font-black text-gray-800 uppercase text-center mb-4">
-              เลือกวิธีเพิ่มบิล/ใบเสร็จ
-            </h3>
+            <h3 className="text-sm font-black text-gray-800 uppercase text-center mb-4">เลือกวิธีเพิ่มบิล/ใบเสร็จ</h3>
             <button
               onClick={() => {
                 if (category === "maintenance" && receiptImageIndex !== null) {
@@ -807,7 +688,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   handleReceiptCamera();
                 }
               }}
-              className="w-full flex items-center justify-center gap-3 p-4 bg-blue-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
+              className="w-full flex items-center justify-center gap-3 p-4 bg-green-600 text-white rounded-xl font-black uppercase active:scale-95 transition-all"
             >
               <Camera size={20} />
               ถ่ายรูป
@@ -839,20 +720,8 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
       )}
 
       {/* Hidden File Inputs */}
-      <input
-        type="file"
-        ref={receiptFileInputRef}
-        accept="image/*"
-        onChange={handleReceiptFileSelect}
-        className="hidden"
-      />
-      <input
-        type="file"
-        ref={otherReceiptFileInputRef}
-        accept="image/*"
-        onChange={handleReceiptFileSelect}
-        className="hidden"
-      />
+      <input type="file" ref={receiptFileInputRef} accept="image/*" onChange={handleReceiptFileSelect} className="hidden" />
+      <input type="file" ref={otherReceiptFileInputRef} accept="image/*" onChange={handleReceiptFileSelect} className="hidden" />
       {maintenanceReceiptImages.map((_, index) => (
         <input
           key={index}
@@ -878,10 +747,10 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
             cameraType === "beforeFill"
               ? "ถ่ายรูปถังน้ำมันก่อนเติม"
               : cameraType === "maintenanceReceipt"
-              ? `ถ่ายรูปบิล/ใบเสร็จเช็คระยะ รูป ${(receiptImageIndex ?? 0) + 1}`
-              : cameraType === "otherReceipt"
-              ? "ถ่ายรูปบิล/ใบเสร็จ"
-              : "ถ่ายรูปบิล/ใบเสร็จ"
+                ? `ถ่ายรูปบิล/ใบเสร็จเช็คระยะ รูป ${(receiptImageIndex ?? 0) + 1}`
+                : cameraType === "otherReceipt"
+                  ? "ถ่ายรูปบิล/ใบเสร็จ"
+                  : "ถ่ายรูปบิล/ใบเสร็จ"
           }
           currentAddress={locationState.currentAddress}
           timestamp={createTimestamp()}
@@ -889,13 +758,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
       )}
 
       {/* Image Viewer */}
-      {viewingImage && (
-        <ImageViewer
-          imageSrc={viewingImage}
-          onClose={() => setViewingImage(null)}
-          alt="Expense image"
-        />
-      )}
+      {viewingImage && <ImageViewer imageSrc={viewingImage} onClose={() => setViewingImage(null)} alt="Expense image" />}
 
       {/* Expense Preview Modal */}
       {showPreviewModal && (
@@ -914,12 +777,8 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   <CheckCircle size={32} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black uppercase tracking-tight">
-                    ตรวจสอบข้อมูล
-                  </h2>
-                  <p className="text-white/80 text-sm mt-1">
-                    กรุณาตรวจสอบข้อมูลก่อนบันทึก
-                  </p>
+                  <h2 className="text-2xl font-black uppercase tracking-tight">ตรวจสอบข้อมูล</h2>
+                  <p className="text-white/80 text-sm mt-1">กรุณาตรวจสอบข้อมูลก่อนบันทึก</p>
                 </div>
               </div>
             </div>
@@ -938,16 +797,10 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                     );
                   })()}
                   <div>
-                    <p className="text-xs text-gray-500 uppercase font-black">
-                      ประเภทค่าใช้จ่าย
-                    </p>
+                    <p className="text-xs text-gray-500 uppercase font-black">ประเภทค่าใช้จ่าย</p>
                     <p className="text-lg font-black text-gray-800">
                       {getCategoryLabel(category)}
-                      {category === "other" && otherType && (
-                        <span className="text-sm text-gray-600 ml-2">
-                          ({otherType})
-                        </span>
-                      )}
+                      {category === "other" && otherType && <span className="text-sm text-gray-600 ml-2">({otherType})</span>}
                     </p>
                   </div>
                 </div>
@@ -955,12 +808,10 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
 
               {/* Amount */}
               <div className="bg-gray-50 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase font-black mb-2">
-                  จำนวนเงิน
-                </p>
+                <p className="text-xs text-gray-500 uppercase font-black mb-2">จำนวนเงิน</p>
                 <p className="text-2xl font-black text-karabao">
                   ฿
-                  {parseFloat(amount || "0").toLocaleString("th-TH", {
+                  {Number.parseFloat(amount || "0").toLocaleString("th-TH", {
                     minimumFractionDigits: 2,
                   })}
                 </p>
@@ -972,27 +823,21 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   {mileage && (
                     <div className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <Gauge size={16} className="text-blue-500" />
-                        <p className="text-xs text-gray-500 uppercase font-black">
-                          เลขไมล์ก่อนเติม
-                        </p>
+                        <Gauge size={16} className="text-green-500" />
+                        <p className="text-xs text-gray-500 uppercase font-black">เลขไมล์ก่อนเติม</p>
                       </div>
-                      <p className="text-lg font-black text-gray-800">
-                        {parseInt(mileage, 10).toLocaleString("th-TH")} กม.
-                      </p>
+                      <p className="text-lg font-black text-gray-800">{Number.parseInt(mileage, 10).toLocaleString("th-TH")} กม.</p>
                     </div>
                   )}
 
                   {liters && (
                     <div className="bg-gray-50 rounded-xl p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <Fuel size={16} className="text-blue-500" />
-                        <p className="text-xs text-gray-500 uppercase font-black">
-                          จำนวนลิตรที่เติม
-                        </p>
+                        <Fuel size={16} className="text-green-500" />
+                        <p className="text-xs text-gray-500 uppercase font-black">จำนวนลิตรที่เติม</p>
                       </div>
                       <p className="text-lg font-black text-gray-800">
-                        {parseFloat(liters).toLocaleString("th-TH", {
+                        {Number.parseFloat(liters).toLocaleString("th-TH", {
                           minimumFractionDigits: 2,
                         })}{" "}
                         ลิตร
@@ -1002,23 +847,17 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
 
                   {paymentType && (
                     <div className="bg-gray-50 rounded-xl p-4">
-                      <p className="text-xs text-gray-500 uppercase font-black mb-2">
-                        ประเภทการเติม
-                      </p>
+                      <p className="text-xs text-gray-500 uppercase font-black mb-2">ประเภทการเติม</p>
                       <div className="flex items-center gap-2">
                         {paymentType === "card" ? (
                           <>
                             <CreditCard size={20} className="text-karabao" />
-                            <p className="text-lg font-black text-gray-800">
-                              บัตรน้ำมัน
-                            </p>
+                            <p className="text-lg font-black text-gray-800">บัตรน้ำมัน</p>
                           </>
                         ) : (
                           <>
                             <Banknote size={20} className="text-karabao" />
-                            <p className="text-lg font-black text-gray-800">
-                              เงินสด
-                            </p>
+                            <p className="text-lg font-black text-gray-800">เงินสด</p>
                           </>
                         )}
                       </div>
@@ -1028,9 +867,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                   {/* Images */}
                   {(beforeFillImage || receiptImage) && (
                     <div className="bg-gray-50 rounded-xl p-4">
-                      <p className="text-xs text-gray-500 uppercase font-black mb-3">
-                        รูปภาพ
-                      </p>
+                      <p className="text-xs text-gray-500 uppercase font-black mb-3">รูปภาพ</p>
                       <div className="grid grid-cols-2 gap-3">
                         {beforeFillImage && (
                           <div className="relative w-full h-32">
@@ -1042,9 +879,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                               onClick={() => setViewingImage(beforeFillImage)}
                               unoptimized
                             />
-                            <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-1 rounded font-black">
-                              ถังน้ำมัน
-                            </div>
+                            <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-1 rounded font-black">ถังน้ำมัน</div>
                           </div>
                         )}
                         {receiptImage && (
@@ -1057,9 +892,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                               onClick={() => setViewingImage(receiptImage)}
                               unoptimized
                             />
-                            <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-1 rounded font-black">
-                              บิล/ใบเสร็จ
-                            </div>
+                            <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-1 rounded font-black">บิล/ใบเสร็จ</div>
                           </div>
                         )}
                       </div>
@@ -1069,40 +902,35 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
               )}
 
               {/* Maintenance receipt images */}
-              {category === "maintenance" &&
-                maintenanceReceiptImages.some((img) => img !== null) && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-xs text-gray-500 uppercase font-black mb-3">
-                      รูปภาพใบเสร็จเช็คระยะ
-                    </p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {maintenanceReceiptImages.map((image, index) =>
-                        image ? (
-                          <div key={index} className="relative w-full h-32">
-                            <Image
-                              src={image}
-                              alt={`Receipt ${index + 1}`}
-                              fill
-                              className="object-cover rounded-lg cursor-pointer"
-                              onClick={() => setViewingImage(image)}
-                              unoptimized
-                            />
-                            <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-1 rounded font-black">
-                              รูป {index + 1}
-                            </div>
+              {category === "maintenance" && maintenanceReceiptImages.some((img) => img !== null) && (
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <p className="text-xs text-gray-500 uppercase font-black mb-3">รูปภาพใบเสร็จเช็คระยะ</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {maintenanceReceiptImages.map((image, index) =>
+                      image ? (
+                        <div key={index} className="relative w-full h-32">
+                          <Image
+                            src={image}
+                            alt={`Receipt ${index + 1}`}
+                            fill
+                            className="object-cover rounded-lg cursor-pointer"
+                            onClick={() => setViewingImage(image)}
+                            unoptimized
+                          />
+                          <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-1 rounded font-black">
+                            รูป {index + 1}
                           </div>
-                        ) : null
-                      )}
-                    </div>
+                        </div>
+                      ) : null
+                    )}
                   </div>
-                )}
+                </div>
+              )}
 
               {/* Other receipt image */}
               {category === "other" && otherReceiptImage && (
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 uppercase font-black mb-3">
-                    รูปภาพใบเสร็จ
-                  </p>
+                  <p className="text-xs text-gray-500 uppercase font-black mb-3">รูปภาพใบเสร็จ</p>
                   <div className="relative w-full h-48">
                     <Image
                       src={otherReceiptImage}
@@ -1112,9 +940,7 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
                       onClick={() => setViewingImage(otherReceiptImage)}
                       unoptimized
                     />
-                    <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-1 rounded font-black">
-                      บิล/ใบเสร็จ
-                    </div>
+                    <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-1 rounded font-black">บิล/ใบเสร็จ</div>
                   </div>
                 </div>
               )}
@@ -1122,12 +948,8 @@ export const AddExpensePage = ({ onBack }: AddExpensePageProps) => {
               {/* Location */}
               {locationState.currentAddress?.address.formatted && (
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs text-gray-500 uppercase font-black mb-2">
-                    สถานที่
-                  </p>
-                  <p className="text-sm font-bold text-gray-800">
-                    {locationState.currentAddress.address.formatted}
-                  </p>
+                  <p className="text-xs text-gray-500 uppercase font-black mb-2">สถานที่</p>
+                  <p className="text-sm font-bold text-gray-800">{locationState.currentAddress.address.formatted}</p>
                 </div>
               )}
             </div>

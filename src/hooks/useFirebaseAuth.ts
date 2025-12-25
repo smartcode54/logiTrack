@@ -1,13 +1,6 @@
-import { useState, useEffect } from "react";
-import { User } from "firebase/auth";
-import {
-  signIn,
-  signUp,
-  logout,
-  getCurrentUser,
-  onAuthStateChange,
-  signInWithGoogle,
-} from "@/lib/firebase";
+import { getCurrentUser, logout, onAuthStateChange, signIn, signInWithGoogle, signUp } from "@/lib/firebase";
+import type { User } from "firebase/auth";
+import { useEffect, useState } from "react";
 
 /**
  * Custom hook for Firebase Authentication
@@ -41,11 +34,7 @@ export const useFirebaseAuth = () => {
     return { success: true, user };
   };
 
-  const handleSignUp = async (
-    email: string,
-    password: string,
-    displayName?: string
-  ) => {
+  const handleSignUp = async (email: string, password: string, displayName?: string) => {
     setLoading(true);
     setError(null);
     const { user, error: signUpError } = await signUp(email, password, displayName);
@@ -93,4 +82,3 @@ export const useFirebaseAuth = () => {
     isAuthenticated: !!user,
   };
 };
-

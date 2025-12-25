@@ -1,7 +1,7 @@
 "use client";
 
-import { Hash, CheckCircle, AlertTriangle, X, Clock } from "lucide-react";
-import { DeliveredJob, JobStatus } from "@/types";
+import type { DeliveredJob, JobStatus } from "@/types";
+import { AlertTriangle, CheckCircle, Clock, Hash, X } from "lucide-react";
 
 interface DeliveredJobCardProps {
   job: DeliveredJob;
@@ -31,17 +31,17 @@ const getStatusConfig = (status: JobStatus) => {
       return {
         label: "ยกเลิก",
         icon: X,
-        bgColor: "bg-red-100",
-        textColor: "text-red-700",
-        iconColor: "text-red-600",
+        bgColor: "bg-orange-100",
+        textColor: "text-orange-700",
+        iconColor: "text-orange-600",
       };
     case "standby":
       return {
         label: "รอ",
         icon: Clock,
-        bgColor: "bg-yellow-100",
-        textColor: "text-yellow-700",
-        iconColor: "text-yellow-600",
+        bgColor: "bg-orange-100",
+        textColor: "text-orange-700",
+        iconColor: "text-orange-600",
       };
     default:
       return {
@@ -54,11 +54,7 @@ const getStatusConfig = (status: JobStatus) => {
   }
 };
 
-export const DeliveredJobCard = ({
-  job,
-  index,
-  onClick,
-}: DeliveredJobCardProps) => {
+export const DeliveredJobCard = ({ job, index, onClick }: DeliveredJobCardProps) => {
   const statusConfig = getStatusConfig(job.status);
   const StatusIcon = statusConfig.icon;
 
@@ -67,18 +63,14 @@ export const DeliveredJobCard = ({
       key={`${job.id}-${index}`}
       onClick={onClick}
       className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-5 ${
-        onClick
-          ? "cursor-pointer hover:shadow-md active:scale-[0.98] transition-all"
-          : ""
+        onClick ? "cursor-pointer hover:shadow-md active:scale-[0.98] transition-all" : ""
       }`}
     >
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-2 flex-wrap">
           <span
             className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
-              job.type === "LH"
-                ? "bg-orange-100 text-orange-700"
-                : "bg-karabao/10 text-karabao"
+              job.type === "LH" ? "bg-orange-100 text-orange-700" : "bg-karabao/10 text-karabao"
             }`}
           >
             {job.type}
@@ -99,14 +91,10 @@ export const DeliveredJobCard = ({
       <div className="space-y-3 border-t pt-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Hash size={14} className="text-blue-500" />
-            <span className="text-xs font-black text-gray-600 uppercase">
-              Run Sheet:
-            </span>
+            <Hash size={14} className="text-green-500" />
+            <span className="text-xs font-black text-gray-600 uppercase">Run Sheet:</span>
           </div>
-          <span className="text-sm font-black text-blue-600">
-            {job.runSheet}
-          </span>
+          <span className="text-sm font-black text-green-600">{job.runSheet}</span>
         </div>
       </div>
     </div>

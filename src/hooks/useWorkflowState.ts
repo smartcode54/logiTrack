@@ -1,11 +1,10 @@
+import type { CheckInPhotos, DeliveryPhotos, GeoapifySearchResult, IncidentPhotos, PickupPhotos, Timestamp } from "@/types";
 import { useState } from "react";
-import {
-  Timestamp,
-  PickupPhotos,
-  DeliveryPhotos,
-  IncidentPhotos,
-  GeoapifySearchResult,
-} from "@/types";
+
+const INITIAL_CHECKIN_PHOTOS: CheckInPhotos = {
+  truckAndLicense: null,
+  customerCheckIn: null,
+};
 
 const INITIAL_PICKUP_PHOTOS: PickupPhotos = {
   beforeClose: null,
@@ -30,37 +29,27 @@ const INITIAL_INCIDENT_PHOTOS: IncidentPhotos = {
 
 export const useWorkflowState = () => {
   const [step, setStep] = useState(0);
-  const [checkInPhoto, setCheckInPhoto] = useState<string | null>(null);
+  const [checkInPhotos, setCheckInPhotos] = useState<CheckInPhotos>(INITIAL_CHECKIN_PHOTOS);
   const [runSheetNumber, setRunSheetNumber] = useState("");
-  const [pickupPhotos, setPickupPhotos] =
-    useState<PickupPhotos>(INITIAL_PICKUP_PHOTOS);
-  const [deliveryPhotos, setDeliveryPhotos] =
-    useState<DeliveryPhotos>(INITIAL_DELIVERY_PHOTOS);
+  const [pickupPhotos, setPickupPhotos] = useState<PickupPhotos>(INITIAL_PICKUP_PHOTOS);
+  const [deliveryPhotos, setDeliveryPhotos] = useState<DeliveryPhotos>(INITIAL_DELIVERY_PHOTOS);
   const [isDelayed, setIsDelayed] = useState(false);
   const [incidentType, setIncidentType] = useState("");
   const [incidentOtherDescription, setIncidentOtherDescription] = useState("");
-  const [incidentPhotos, setIncidentPhotos] =
-    useState<IncidentPhotos>(INITIAL_INCIDENT_PHOTOS);
+  const [incidentPhotos, setIncidentPhotos] = useState<IncidentPhotos>(INITIAL_INCIDENT_PHOTOS);
 
   // Timestamps
-  const [confirmedCheckInTime, setConfirmedCheckInTime] =
-    useState<Timestamp | null>(null);
-  const [confirmedPickupTime, setConfirmedPickupTime] =
-    useState<Timestamp | null>(null);
-  const [confirmedDepartureTime, setConfirmedDepartureTime] =
-    useState<Timestamp | null>(null);
-  const [confirmedArrivalTime, setConfirmedArrivalTime] =
-    useState<Timestamp | null>(null);
-  const [confirmedDeliveryTime, setConfirmedDeliveryTime] =
-    useState<Timestamp | null>(null);
-  const [confirmedIncidentTime, setConfirmedIncidentTime] =
-    useState<Timestamp | null>(null);
-  const [incidentAddress, setIncidentAddress] =
-    useState<GeoapifySearchResult | null>(null);
+  const [confirmedCheckInTime, setConfirmedCheckInTime] = useState<Timestamp | null>(null);
+  const [confirmedPickupTime, setConfirmedPickupTime] = useState<Timestamp | null>(null);
+  const [confirmedDepartureTime, setConfirmedDepartureTime] = useState<Timestamp | null>(null);
+  const [confirmedArrivalTime, setConfirmedArrivalTime] = useState<Timestamp | null>(null);
+  const [confirmedDeliveryTime, setConfirmedDeliveryTime] = useState<Timestamp | null>(null);
+  const [confirmedIncidentTime, setConfirmedIncidentTime] = useState<Timestamp | null>(null);
+  const [incidentAddress, setIncidentAddress] = useState<GeoapifySearchResult | null>(null);
 
   const resetWorkflow = () => {
     setStep(0);
-    setCheckInPhoto(null);
+    setCheckInPhotos(INITIAL_CHECKIN_PHOTOS);
     setRunSheetNumber("");
     setPickupPhotos(INITIAL_PICKUP_PHOTOS);
     setDeliveryPhotos(INITIAL_DELIVERY_PHOTOS);
@@ -80,8 +69,8 @@ export const useWorkflowState = () => {
   return {
     step,
     setStep,
-    checkInPhoto,
-    setCheckInPhoto,
+    checkInPhotos,
+    setCheckInPhotos,
     runSheetNumber,
     setRunSheetNumber,
     pickupPhotos,
@@ -113,4 +102,3 @@ export const useWorkflowState = () => {
     resetWorkflow,
   };
 };
-

@@ -1,27 +1,18 @@
 "use client";
 
+import type { ExpenseCategory } from "@/types";
+import { Fuel, MoreHorizontal, Plus, Wrench, X } from "lucide-react";
 import { useState } from "react";
-import { Plus, Fuel, Wrench, MoreHorizontal, X } from "lucide-react";
-import { ExpenseCategory } from "@/types";
 
 interface ExpenseFormProps {
   isOpen: boolean;
-  onAddExpense: (
-    category: ExpenseCategory,
-    amount: number,
-    description: string,
-    otherType?: string
-  ) => void;
+  onAddExpense: (category: ExpenseCategory, amount: number, description: string, otherType?: string) => void;
   onClose?: () => void;
 }
 
 const OTHER_TYPES = ["ยาง", "ล้างรถ", "อื่นๆ"];
 
-export const ExpenseForm = ({
-  isOpen,
-  onAddExpense,
-  onClose,
-}: ExpenseFormProps) => {
+export const ExpenseForm = ({ isOpen, onAddExpense, onClose }: ExpenseFormProps) => {
   const [category, setCategory] = useState<ExpenseCategory>("fuel");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
@@ -29,7 +20,7 @@ export const ExpenseForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const amountNum = parseFloat(amount);
+    const amountNum = Number.parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
       alert("กรุณากรอกจำนวนเงินที่ถูกต้อง");
       return;
@@ -45,12 +36,7 @@ export const ExpenseForm = ({
       return;
     }
 
-    onAddExpense(
-      category,
-      amountNum,
-      description.trim(),
-      category === "other" ? otherType : undefined
-    );
+    onAddExpense(category, amountNum, description.trim(), category === "other" ? otherType : undefined);
 
     // Reset form
     setAmount("");
@@ -103,54 +89,33 @@ export const ExpenseForm = ({
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Category Selection */}
           <div>
-            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">
-              ประเภทค่าใช้จ่าย
-            </label>
+            <label className="text-sm font-black text-gray-700 uppercase mb-3 block">ประเภทค่าใช้จ่าย</label>
             <div className="grid grid-cols-3 gap-3">
-              {(["fuel", "maintenance", "other"] as ExpenseCategory[]).map(
-                (cat) => {
-                  const Icon = getCategoryIcon(cat);
-                  const isSelected = category === cat;
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => {
-                        setCategory(cat);
-                        if (cat !== "other") setOtherType("");
-                      }}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        isSelected
-                          ? "border-karabao bg-karabao/10"
-                          : "border-gray-200 bg-white"
-                      }`}
-                    >
-                      <Icon
-                        size={24}
-                        className={`mb-2 mx-auto ${
-                          isSelected ? "text-karabao" : "text-gray-400"
-                        }`}
-                      />
-                      <p
-                        className={`text-xs font-black uppercase ${
-                          isSelected ? "text-karabao" : "text-gray-500"
-                        }`}
-                      >
-                        {getCategoryLabel(cat)}
-                      </p>
-                    </button>
-                  );
-                }
-              )}
+              {(["fuel", "maintenance", "other"] as ExpenseCategory[]).map((cat) => {
+                const Icon = getCategoryIcon(cat);
+                const isSelected = category === cat;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => {
+                      setCategory(cat);
+                      if (cat !== "other") setOtherType("");
+                    }}
+                    className={`p-4 rounded-xl border-2 transition-all ${isSelected ? "border-karabao bg-karabao/10" : "border-gray-200 bg-white"}`}
+                  >
+                    <Icon size={24} className={`mb-2 mx-auto ${isSelected ? "text-karabao" : "text-gray-400"}`} />
+                    <p className={`text-xs font-black uppercase ${isSelected ? "text-karabao" : "text-gray-500"}`}>{getCategoryLabel(cat)}</p>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Other Type Selection */}
           {category === "other" && (
             <div>
-              <label className="text-sm font-black text-gray-700 uppercase mb-3 block">
-                เลือกประเภท
-              </label>
+              <label className="text-sm font-black text-gray-700 uppercase mb-3 block">เลือกประเภท</label>
               <div className="grid grid-cols-3 gap-2">
                 {OTHER_TYPES.map((type) => (
                   <button
@@ -158,9 +123,7 @@ export const ExpenseForm = ({
                     type="button"
                     onClick={() => setOtherType(type)}
                     className={`p-3 rounded-lg border-2 transition-all text-sm font-black ${
-                      otherType === type
-                        ? "border-karabao bg-karabao/10 text-karabao"
-                        : "border-gray-200 bg-white text-gray-600"
+                      otherType === type ? "border-karabao bg-karabao/10 text-karabao" : "border-gray-200 bg-white text-gray-600"
                     }`}
                   >
                     {type}
@@ -181,9 +144,7 @@ export const ExpenseForm = ({
 
           {/* Amount */}
           <div>
-            <label className="text-sm font-black text-gray-700 uppercase mb-2 block">
-              จำนวนเงิน (บาท)
-            </label>
+            <label className="text-sm font-black text-gray-700 uppercase mb-2 block">จำนวนเงิน (บาท)</label>
             <input
               type="number"
               value={amount}
@@ -198,9 +159,7 @@ export const ExpenseForm = ({
 
           {/* Description */}
           <div>
-            <label className="text-sm font-black text-gray-700 uppercase mb-2 block">
-              รายละเอียด
-            </label>
+            <label className="text-sm font-black text-gray-700 uppercase mb-2 block">รายละเอียด</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -224,4 +183,3 @@ export const ExpenseForm = ({
     </div>
   );
 };
-
